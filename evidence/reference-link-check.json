@@ -1,0 +1,31 @@
+{
+  "checked": "2026-10-07",
+  "method": "Each page fetched and read in full during the first-party grounding review, not just an HTTP status check.",
+  "read_in_full": [
+    "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+    "https://arxiv.org/abs/2309.02427",
+    "https://modelcontextprotocol.io/specification/2026-07-28/changelog",
+    "https://modelcontextprotocol.io/specification/2026-07-28/architecture",
+    "https://modelcontextprotocol.io/specification/2026-07-28/server/tools",
+    "https://modelcontextprotocol.io/specification/2026-07-28/server/resources",
+    "https://modelcontextprotocol.io/specification/2026-07-28/server/prompts",
+    "https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio",
+    "https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization",
+    "https://github.com/modelcontextprotocol/python-sdk/blob/main/docs/migration.md",
+    "https://github.com/modelcontextprotocol/typescript-sdk",
+    "https://modelcontextprotocol.io/docs/tools/inspector",
+    "https://code.visualstudio.com/docs/agent-customization/mcp-servers",
+    "https://code.claude.com/docs/en/mcp",
+    "https://modelcontextprotocol.io/docs/develop/connect-local-servers",
+    "https://learn.microsoft.com/en-us/azure/api-management/mcp-server-overview",
+    "https://modelcontextprotocol.io/registry/about",
+    "https://www.anthropic.com/engineering/code-execution-with-mcp",
+    "https://agentskills.io/home",
+    "https://github.com/timothywarner-org/context-engineering"
+  ],
+  "covered_by_parent_or_child": [
+    "https://modelcontextprotocol.io/specification/2026-07-28 (index; child pages read)",
+    "https://modelcontextprotocol.io/specification/2026-07-28/basic/transports (index; stdio page read)",
+    "https://github.com/timothywarner-org/context-engineering/tree/main/src/warnerco/backend (path confirmed from the repository page)"
+  ]
+}

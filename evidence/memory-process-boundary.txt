@@ -1,0 +1,38 @@
+1. Process A writes process-local memory: Timeouts began after the deployment
+2. Fresh process B reads process-local memory: No note in this fresh process
+3. Process A writes a durable note: Committed note and event
+4. Fresh process B retrieves all four roles:
+{
+  "scope": "class-demo",
+  "working": [
+    {
+      "topic": "INC-1042",
+      "note": "Timeouts began after the deployment"
+    }
+  ],
+  "episodic": [
+    {
+      "occurred": "2026-10-07T15:08:39.458298+00:00",
+      "summary": "Observed: Timeouts began after the deployment"
+    }
+  ],
+  "semantic": [
+    {
+      "id": "FACT-01",
+      "statement": "Order API timeouts can follow exhausted connection pools.",
+      "source": "Fictional WARNERCO runbook v1"
+    }
+  ],
+  "procedural": {
+    "version": "1.0",
+    "steps": [
+      "Read incident facts",
+      "Inspect the approved runbook",
+      "Compare instances",
+      "Request approval before changes"
+    ]
+  },
+  "retrieval": "Lexical lookup over durable facts; no embedding model"
+}
+PASS: the stored note survived a new process; another scope has no session notes.
+Scope is an application filter, not authentication. Authorize the caller before selecting a scope.

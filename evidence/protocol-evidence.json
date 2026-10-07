@@ -1,0 +1,318 @@
+[
+  {
+    "language": "Python",
+    "protocol": "2026-07-28",
+    "checks": 6,
+    "result": "PASS",
+    "responses": {
+      "1": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "cacheScope": "private",
+          "capabilities": {
+            "prompts": {
+              "listChanged": true
+            },
+            "resources": {
+              "listChanged": true,
+              "subscribe": true
+            },
+            "tools": {
+              "listChanged": true
+            }
+          },
+          "resultType": "complete",
+          "supportedVersions": [
+            "2026-07-28"
+          ],
+          "ttlMs": 0,
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        }
+      },
+      "2": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "cacheScope": "private",
+          "resultType": "complete",
+          "tools": [
+            {
+              "description": "Look up a WARNERCO incident by ID. This operation is read-only.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "incident_id": {
+                    "title": "Incident Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "incident_id"
+                ],
+                "title": "get_incidentArguments"
+              },
+              "name": "get_incident"
+            }
+          ],
+          "ttlMs": 0,
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        }
+      },
+      "3": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "content": [
+            {
+              "text": "{\n  \"id\": \"INC-1042\",\n  \"owner\": \"Priya Patel\",\n  \"service\": \"Order API\",\n  \"status\": \"Investigating\",\n  \"symptom\": \"Timeouts after a deployment\"\n}",
+              "type": "text"
+            }
+          ],
+          "isError": false,
+          "resultType": "complete",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        }
+      },
+      "4": {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "result": {
+          "cacheScope": "private",
+          "contents": [
+            {
+              "mimeType": "text/plain",
+              "text": "Confirm the deployment time; inspect request failures; compare healthy and failing instances; request approval before rollback.",
+              "uri": "warnerco://runbooks/order-api"
+            }
+          ],
+          "resultType": "complete",
+          "ttlMs": 0,
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        }
+      },
+      "5": {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+          "description": "Prepare an evidence-first investigation request for the user to invoke.",
+          "messages": [
+            {
+              "content": {
+                "text": "Investigate INC-1042. Read the incident and order-api runbook. Separate observed facts from hypotheses. Recommend the next check; request approval before changes.",
+                "type": "text"
+              },
+              "role": "user"
+            }
+          ],
+          "resultType": "complete",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        }
+      },
+      "6": {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "result": {
+          "content": [
+            {
+              "text": "Error executing tool get_incident",
+              "type": "text"
+            }
+          ],
+          "isError": true,
+          "resultType": "complete",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "language": "TypeScript",
+    "protocol": "2026-07-28",
+    "checks": 6,
+    "result": "PASS",
+    "responses": {
+      "1": {
+        "result": {
+          "supportedVersions": [
+            "2026-07-28"
+          ],
+          "capabilities": {
+            "tools": {
+              "listChanged": true
+            },
+            "resources": {
+              "listChanged": true
+            },
+            "prompts": {
+              "listChanged": true
+            }
+          },
+          "resultType": "complete",
+          "ttlMs": 0,
+          "cacheScope": "private",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 1
+      },
+      "2": {
+        "result": {
+          "tools": [
+            {
+              "name": "get_incident",
+              "description": "Look up a WARNERCO incident by ID. This operation is read-only.",
+              "inputSchema": {
+                "type": "object",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "properties": {
+                  "incident_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "incident_id"
+                ]
+              }
+            }
+          ],
+          "resultType": "complete",
+          "ttlMs": 0,
+          "cacheScope": "private",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 2
+      },
+      "3": {
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"id\":\"INC-1042\",\"owner\":\"Priya Patel\",\"service\":\"Order API\",\"status\":\"Investigating\",\"symptom\":\"Timeouts after a deployment\"}"
+            }
+          ],
+          "structuredContent": {
+            "id": "INC-1042",
+            "owner": "Priya Patel",
+            "service": "Order API",
+            "status": "Investigating",
+            "symptom": "Timeouts after a deployment"
+          },
+          "resultType": "complete",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 3
+      },
+      "4": {
+        "result": {
+          "contents": [
+            {
+              "uri": "warnerco://runbooks/order-api",
+              "text": "Confirm the deployment time; inspect request failures; compare healthy and failing instances; request approval before rollback."
+            }
+          ],
+          "resultType": "complete",
+          "ttlMs": 0,
+          "cacheScope": "private",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 4
+      },
+      "5": {
+        "result": {
+          "messages": [
+            {
+              "role": "user",
+              "content": {
+                "type": "text",
+                "text": "Investigate INC-1042. Read the incident and order-api runbook. Separate observed facts from hypotheses. Recommend the next check; request approval before changes."
+              }
+            }
+          ],
+          "resultType": "complete",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 5
+      },
+      "6": {
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Unknown incident: MISSING"
+            }
+          ],
+          "isError": true,
+          "resultType": "complete",
+          "_meta": {
+            "io.modelcontextprotocol/serverInfo": {
+              "name": "warnerco-incidents",
+              "version": "1.0.0"
+            }
+          }
+        },
+        "jsonrpc": "2.0",
+        "id": 6
+      }
+    }
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "checked": "2026-10-07",
+  "tool": "@modelcontextprotocol/inspector@2.9.0 --cli --protocol-era modern",
+  "calls": [
+    {
+      "method": "tools/call get_incident INC-1042",
+      "result": "PASS",
+      "evidence": "owner Priya Patel, isError false"
+    },
+    {
+      "method": "resources/read warnerco://runbooks/order-api",
+      "result": "PASS",
+      "evidence": "runbook text returned with cacheScope private, ttlMs 0"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+WARNERCO | FICTIONAL TRAINING DATA
+Incident: INC-1042
+Owner: Priya Patel
+Service: Order API
+Symptom: Timeouts after a deployment
+Task: Recommend the next investigation check. Separate evidence from hypotheses.
+Approved procedure: Confirm deployment time; inspect request failures; compare instances; request approval before rollback.

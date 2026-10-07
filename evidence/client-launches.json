@@ -1,0 +1,13 @@
+{
+  "checked": "2026-10-07",
+  "launch_shape": "uv run --project <package>/python python <package>/python/server.py",
+  "used_by": [
+    "VS Code .vscode/mcp.json (servers)",
+    "Claude Code .mcp.json (mcpServers)",
+    "Claude Desktop claude_desktop_config.json (mcpServers)",
+    "MCP Inspector config (mcpServers)"
+  ],
+  "request": "server/discover",
+  "result": "PASS",
+  "note": "Process-level launch check. Each host UI still needs a live rehearsal on the presenter machine."
+}

@@ -1,0 +1,5 @@
+[project]
+name = "warnerco-mcp-course"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = ["mcp==2.3.0"]

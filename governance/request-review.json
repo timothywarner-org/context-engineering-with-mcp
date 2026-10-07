@@ -1,0 +1,36 @@
+{
+  "purpose": "Design exercise only. These cases do not validate real tokens or deploy a gateway.",
+  "architecture": [
+    "MCP-capable client",
+    "Microsoft Entra authorization server",
+    "Azure API Management gateway",
+    "MCP resource server",
+    "Authorized incident store"
+  ],
+  "cases": [
+    {
+      "id": "A",
+      "token_audience": "different-resource",
+      "scope": "incidents.read",
+      "data_access": "INC-1042 permitted",
+      "decision": "Deny",
+      "reason": "Token is not intended for this protected resource."
+    },
+    {
+      "id": "B",
+      "token_audience": "incident-mcp",
+      "scope": "profile.read",
+      "data_access": "INC-1042 permitted",
+      "decision": "Deny",
+      "reason": "Required incidents.read scope is missing."
+    },
+    {
+      "id": "C",
+      "token_audience": "incident-mcp",
+      "scope": "incidents.read",
+      "data_access": "INC-1042 permitted",
+      "decision": "Allow only after all remaining validation succeeds",
+      "reason": "Validate signature, issuer, expiry and applicable policy; enforce data authorization. A registry listing is irrelevant to this decision."
+    }
+  ]
+}

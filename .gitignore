@@ -1,0 +1,14 @@
+# Build output, installed packages, and caches regenerate from the lock files.
+node_modules/
+dist/
+__pycache__/
+.venv/
+
+# Generated client configs contain absolute paths from one machine.
+clients/generated/
+
+# Demo databases and secrets never belong in a teaching repo.
+*.db
+*.sqlite3
+.env
+.env.*
