@@ -12,3 +12,6 @@ clients/generated/
 *.sqlite3
 .env
 .env.*
+
+# verify_protocol.py writes fresh evidence here on every run; the reference copy lives in evidence/.
+/protocol-evidence.json
