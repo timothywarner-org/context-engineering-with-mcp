@@ -1,0 +1,66 @@
+name: Verify course demos
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protocol-and-memory:
+    name: Protocol and memory (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v5
+      - name: Install locked Python dependencies
+        run: |
+          uv sync --project ./python --locked --python 3.12
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Install and build locked TypeScript starter
+        working-directory: typescript
+        run: |
+          npm ci
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run build
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify both protocol implementations
+        run: |
+          uv run --project ./python python ./verify_protocol.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify memory across processes
+        run: |
+          uv run --project ./python python ./memory/memory_demo.py demo
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Generate portable client snippets
+        run: ./clients/New-ClientConfigs.ps1
+      - name: Verify pinned Inspector tool and resource calls
+        run: |
+          $inspectorToolOutput = npx --yes @modelcontextprotocol/inspector@2.9.0 --cli --config clients/generated/inspector.json --server warnerco-incidents --protocol-era modern --method tools/call --tool-name get_incident --tool-arg incident_id=INC-1042 --format json | Out-String
+          if ($LASTEXITCODE -ne 0 -or $inspectorToolOutput -notmatch 'Priya Patel') { throw 'Inspector tool result failed verification' }
+          Write-Output $inspectorToolOutput
+          $inspectorResourceOutput = npx --yes @modelcontextprotocol/inspector@2.9.0 --cli --config clients/generated/inspector.json --server warnerco-incidents --protocol-era modern --method resources/read --uri warnerco://runbooks/order-api --format json | Out-String
+          if ($LASTEXITCODE -ne 0 -or $inspectorResourceOutput -notmatch 'request approval before rollback') { throw 'Inspector resource result failed verification' }
+          Write-Output $inspectorResourceOutput
+      - name: Retain protocol evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: protocol-evidence-${{ matrix.os }}
+          path: protocol-evidence.json
+          if-no-files-found: warn
