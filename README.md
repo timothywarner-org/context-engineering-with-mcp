@@ -77,16 +77,20 @@ See the [official SDK client guide](https://py.sdk.modelcontextprotocol.io/clien
 
 ```powershell
 # Pin Inspector to the version verified with this release.
-npx --yes @modelcontextprotocol/inspector@2.9.0 --cli --config clients/generated/inspector.json --server warnerco-incidents --protocol-era modern --method tools/call --tool-name get_incident --tool-arg incident_id=INC-1042 --format json
+npx --yes @modelcontextprotocol/inspector@2.9.0 --cli --config clients/generated/inspector.json --server warnerco-incidents --method tools/call --tool-name get_incident --tool-arg incident_id=INC-1042 --format json
 
 # Read the resource separately: discovery alone isn't functional verification.
-npx --yes @modelcontextprotocol/inspector@2.9.0 --cli --config clients/generated/inspector.json --server warnerco-incidents --protocol-era modern --method resources/read --uri warnerco://runbooks/order-api --format json
+npx --yes @modelcontextprotocol/inspector@2.9.0 --cli --config clients/generated/inspector.json --server warnerco-incidents --method resources/read --uri warnerco://runbooks/order-api --format json
 
 # Start the graphical Inspector when you want to explore the same exchange.
 npx --yes @modelcontextprotocol/inspector@2.9.0 --config clients/generated/inspector.json --server warnerco-incidents
 ```
 
 Keep the server's stdout reserved for protocol messages. Diagnostics go to stderr. If a server appears idle when launched directly, it's waiting for protocol input.
+
+The generator selects `protocolEra: "modern"` inside the Inspector server entry.
+Both the graphical and command-line Inspector use that saved selection.
+This setting is specific to Inspector and isn't added to the other host snippets.
 
 ## Connect a host
 
