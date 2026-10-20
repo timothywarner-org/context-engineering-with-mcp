@@ -18,8 +18,12 @@ try {
     New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
     @{servers=@{'warnerco-incidents'=(@{type='stdio'}+$entry)}} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $OutputDirectory 'vscode-mcp.json') -Encoding utf8
     $shared = @{mcpServers=@{'warnerco-incidents'=$entry}} | ConvertTo-Json -Depth 6
-    foreach($file in @('claude-code.mcp.json','claude-desktop.json','inspector.json')) {
+    foreach($file in @('claude-code.mcp.json','claude-desktop.json')) {
         Set-Content -LiteralPath (Join-Path $OutputDirectory $file) -Value $shared -Encoding utf8
     }
+    # Inspector defaults to the legacy handshake unless its own entry selects the modern era.
+    @{mcpServers=@{'warnerco-incidents'=(@{protocolEra='modern'}+$entry)}} |
+        ConvertTo-Json -Depth 6 |
+        Set-Content -LiteralPath (Join-Path $OutputDirectory 'inspector.json') -Encoding utf8
     Write-Output "Generated configuration snippets in $OutputDirectory. Merge only the named server into each existing client configuration."
 } catch { Write-Error "Client configuration generation failed: $_"; exit 1 }
