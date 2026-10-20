@@ -2,7 +2,32 @@
 
 Tim Warner | Pearson Enterprise Live Training | October 22, 2026
 
-**Two ways to take part.** If you set up the tools listed on the registration page, follow along hands-on with the commands below. If you didn't, you lose nothing: Tim drives every demo on screen, and the polls, chat, and worksheet carry the activities. Everything below also works as follow-up practice after class.
+**Start here. This is the canonical learner and demo repository for this session.**
+Use this same checkout during the demonstration and for practice afterward. You
+don't need another course repository to complete the examples.
+
+**Attending live?** Tim runs every demo on screen. Participate through predictions,
+polls, chat, and the worksheet; installing tools is optional. Get the slide PDF,
+participant worksheet, and links PDF from your Pearson session's **Resources** widget.
+
+**Practicing afterward?** Start with [your first successful tool call](#optional-preparation),
+then follow the learning route below. The first example needs no model account,
+API key, Node.js installation, or Azure subscription.
+
+## Learning route
+
+Follow one fictional incident, **INC-1042**, from a context problem through tool use,
+durable memory, and access decisions. All business data is fictional.
+
+| Step | Open or run | What you should be able to explain |
+|---|---|---|
+| 1. Choose useful context | [Context audit](#context-audit-and-governance-practice) | What the assistant needs, what adds noise, and which measurements are real. |
+| 2. Call a tool and read a resource | [Python client](#call-the-server-from-python) | How a client gets incident data and a runbook, including a deliberate failure. |
+| 3. Inspect the exchange | [MCP Inspector](#inspect-the-server) | The difference between discovering a capability and successfully using it. |
+| 4. Connect your preferred host | [Host configuration](#connect-a-host) | How a host launches the same server and obtains consent. One host is enough for practice. |
+| 5. Carry context across processes | [Memory demonstration](#understand-the-memory-demonstration) | What survives a process exit and why storage alone doesn't supply model context. |
+| 6. Decide who may do what | [Governance exercise](#context-audit-and-governance-practice) | Where token, scope, and data-access decisions belong. |
+| Optional extension | [Azure gateway demonstration](#explore-the-azure-gateway-demonstration) | How routing, denial, and throttling affect real requests. |
 
 ## What is in this repository
 
@@ -15,29 +40,77 @@ Tim Warner | Pearson Enterprise Live Training | October 22, 2026
 - `governance/request-review.json`: remote authorization and gateway decision exercise.
 - [`azure-demo/`](azure-demo/README.md): the optional Azure Container Apps and API Management supplement, with tool-specific routes, denial, and throttling.
 - Slides, participant worksheet, and links PDF: in the Resources widget for your Pearson session.
-- `evidence/`: saved verification results from October 7, 2026.
+- `evidence/`: dated reference results; [GitHub Actions](https://github.com/timothywarner-org/context-engineering-with-mcp/actions/workflows/verify.yml) checks the current code on Windows and Linux.
 
 ## Optional preparation
 
-Use PowerShell 7, Python 3.11 or later with `uv`, and Node.js 22.19 or later with npm. Live attendees can skip this and still complete every activity. A host account is needed only to repeat the host demonstrations later. No Azure subscription is needed for the supplied local exercises.
+### Your first successful tool call
 
-Clone the repository with `git clone https://github.com/timothywarner-org/context-engineering-with-mcp.git`, then open a terminal at its root:
+Use **PowerShell 7**, **Git**, and **uv**. The locked project supports Python 3.11 or
+later; the commands below select Python 3.12, matching the verification workflow.
+uv can obtain that interpreter if it isn't installed.
+
+If you already have this repository, open a terminal in that checkout and skip the
+clone. Otherwise, run:
 
 ```powershell
-# Locked dependencies make the demonstration reproducible.
-uv sync --project .\python --locked
-Push-Location .\typescript
-try { npm ci; if ($LASTEXITCODE) { throw 'npm ci failed' }; npm run build; if ($LASTEXITCODE) { throw 'Build failed' } }
-finally { Pop-Location }
+# Clone once so every exercise uses the same working copy.
+git clone https://github.com/timothywarner-org/context-engineering-with-mcp.git
+if ($LASTEXITCODE) { throw 'Clone failed; resolve the error before continuing.' }
+Set-Location -LiteralPath .\context-engineering-with-mcp
+```
 
-# Verify both languages using real protocol requests and explicit failure cases.
-uv run --project .\python python .\verify_protocol.py
+From the repository root:
 
-# Use a fresh temporary database so repeated practice can't alter earlier work.
-uv run --project .\python python .\memory\memory_demo.py demo
+```powershell
+# Use the lock file and the same Python version as the course verification workflow.
+uv sync --project .\python --locked --python 3.12
+if ($LASTEXITCODE) { throw 'Python setup failed; resolve the error before continuing.' }
 
-# Generate absolute launch paths for wherever you cloned the repository.
+# This client starts and stops its own server; no separate terminal or model is needed.
+uv run --locked --project .\python python .\python\client.py
+if ($LASTEXITCODE) { throw 'Client demo failed; see Troubleshooting below.' }
+```
+
+**Look for:** tool `get_incident`, owner **Priya Patel**, a timeout after deployment,
+the runbook's instruction to request approval before rollback, and a final
+`is_error=True` for the deliberately missing incident. That last result is expected.
+[The client explanation](#call-the-server-from-python) separates this expected tool
+error from a failed demo.
+
+### Add tools only for the next exercise
+
+| Exercise | Additional preparation |
+|---|---|
+| Memory or local HTTP checks | None beyond the locked Python setup above. |
+| Inspector | Node.js 22.19 or later with npm; generate the client snippets below. |
+| TypeScript implementation and full regression checks | Node.js 22.19 or later with npm; install and build below. |
+| Host integration | A supported host and its required account/access; generate snippets and review consent. |
+| Azure deployment | Optional. Read the supplement's prerequisites and cost/cleanup instructions first. |
+
+For Inspector or a host, generate configuration for **your** checkout path:
+
+```powershell
+# Generated absolute paths prevent the host from launching a different checkout.
 .\clients\New-ClientConfigs.ps1
+if (-not $?) { throw 'Configuration generation failed.' }
+```
+
+For the TypeScript example and the full Python/TypeScript regression checks:
+
+```powershell
+# Keep the TypeScript installation local and reproducible.
+Push-Location .\typescript
+try {
+    npm ci
+    if ($LASTEXITCODE) { throw 'TypeScript dependency installation failed.' }
+    npm run build
+    if ($LASTEXITCODE) { throw 'TypeScript build failed.' }
+} finally { Pop-Location }
+
+# Both implementations must return meaningful success and failure results.
+uv run --locked --project .\python python .\verify_protocol.py
+if ($LASTEXITCODE) { throw 'Protocol verification failed.' }
 ```
 
 Expect six protocol checks per language: discovery, tool listing, normalized incident lookup, resource read, prompt retrieval, and an unknown-ID tool error. The known incident is `INC-1042`; its owner is `Priya Patel`. All business data is fictional.
@@ -48,7 +121,7 @@ After installing the locked Python dependencies, run this from the repository ro
 
 ```powershell
 # The SDK manages the stdio subprocess, including discovery and cleanup.
-uv run --project .\python python .\python\client.py
+uv run --locked --project .\python python .\python\client.py
 ```
 
 The client lists `get_incident`, calls it with `INC-1042`, reads the approved runbook,
@@ -106,11 +179,21 @@ Restart or reload the connection as required by the current host. Review its con
 
 ## Understand the memory demonstration
 
+From the same repository root:
+
+```powershell
+# A temporary database makes this repeatable without altering prior practice.
+uv run --locked --project .\python python .\memory\memory_demo.py demo
+if ($LASTEXITCODE) { throw 'Memory demonstration failed.' }
+```
+
 The example starts separate Python processes. A process-local value is lost. A note and event written to SQLite survive the next process. It then retrieves a durable fact and a versioned procedure, and verifies that a different scope sees no working notes or events.
 
 SQLite proves a local process boundary. It isn't a distributed storage demonstration. Retrieval is lexical, not embeddings. Scope is a filter, not authorization. Production replicas require a suitable shared service, authorized identity-to-scope binding, concurrent-write behavior, retention, and a retrieval strategy that fits the workload.
 
-The memory roles adapt the teaching design of [WARNERCO Schematica](https://github.com/timothywarner-org/context-engineering/tree/main/src/warnerco/backend). That larger reference uses additional dependencies and a vector-backed knowledge store. This repository deliberately keeps the demonstration inspectable.
+The memory roles adapt the teaching design of WARNERCO Schematica. The complete
+local exercise is here; the optional architectural reference is listed under
+[Further reading](#further-reading).
 
 ## Context audit and governance practice
 
@@ -144,8 +227,17 @@ The starters target the July 28, 2026 specification. Current-protocol `server/di
 
 No result in this repository claims a completed three-host GUI rehearsal, a live Azure OAuth test, or a Pearson event-platform upload. Re-run the examples after dependency or host changes. Keep tokens and private data out of screenshots and teaching fixtures.
 
+## Further reading
+
+[WARNERCO Schematica](https://github.com/timothywarner-org/context-engineering/tree/main/src/warnerco/backend)
+is the larger architectural reference behind the memory exercise. It has different
+dependencies and a vector-backed knowledge store. **It is optional reading, not a
+second setup route for this session.** Keep this repository as your working copy.
+
 ## Troubleshooting
 
+- **Wrong folder:** run `Get-Location`. The repository root contains `python`, `typescript`, `memory`, and `clients`. All commands on this page start there.
+- **Need installation instructions:** use the official [PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows), [Git](https://git-scm.com/downloads), [uv](https://docs.astral.sh/uv/getting-started/installation/), and [Node.js](https://nodejs.org/en/download) guides. Install only what your chosen exercise needs.
 - Command not found: install the optional prerequisite, reopen your terminal, and regenerate configuration snippets.
 - TypeScript module not found: run `npm ci` and `npm run build` inside `typescript`.
 - Discovery returns Method not found: inspect SDK version, protocol era, and the server entry point. Compare with the supplied files.
