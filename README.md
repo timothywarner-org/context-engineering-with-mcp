@@ -7,6 +7,7 @@ Tim Warner | Pearson Enterprise Live Training | October 22, 2026
 ## What is in this repository
 
 - `python/`: official MCP Python SDK 2.3.0 starter, pinned with `uv.lock`.
+- `python/client.py`: small SDK client that calls the existing server without a model or API key.
 - `typescript/`: official TypeScript SDK server 2.3.1 starter, pinned with `package-lock.json`.
 - `memory/memory_demo.py`: working, episodic, semantic, and procedural memory example.
 - `clients/New-ClientConfigs.ps1`: portable configuration generator for three hosts and Inspector.
@@ -39,6 +40,37 @@ uv run --project .\python python .\memory\memory_demo.py demo
 ```
 
 Expect six protocol checks per language: discovery, tool listing, normalized incident lookup, resource read, prompt retrieval, and an unknown-ID tool error. The known incident is `INC-1042`; its owner is `Priya Patel`. All business data is fictional.
+
+## Call the server from Python
+
+After installing the locked Python dependencies, run this from the repository root:
+
+```powershell
+# The SDK manages the stdio subprocess, including discovery and cleanup.
+uv run --project .\python python .\python\client.py
+```
+
+The client lists `get_incident`, calls it with `INC-1042`, reads the approved runbook,
+and requests `MISSING` to show an explicit tool error. Expect Priya Patel, the timeout
+symptom, the instruction to request approval before rollback, and `is_error=True`
+for the missing incident. All business data is fictional.
+
+The existing server raises `ValueError` for a missing incident. The SDK logs that
+exception to stderr and returns `Error executing tool get_incident` to the client.
+The traceback is server diagnostics; `is_error=True` is the returned tool result.
+
+An MCP client can make these requests without a language model. The script uses
+`Client` and `StdioServerParameters` from the same pinned official `mcp` package as
+the server. It starts `python/server.py` with its own Python interpreter and an
+absolute path, then closes the connection and server on exit. No separate server
+terminal, new package, or credential is required. Requests have a ten-second timeout,
+and the complete demonstration has a thirty-second timeout. Unexpected failures
+exit with a nonzero status; the deliberate missing-incident result is part of a
+successful demonstration.
+
+Use this small client to learn the SDK calls. Keep `verify_protocol.py` for the full
+Python/TypeScript regression checks, including normalization and prompt retrieval.
+See the [official SDK client guide](https://py.sdk.modelcontextprotocol.io/client/).
 
 ## Inspect the server
 
