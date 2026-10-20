@@ -47,6 +47,20 @@ jobs:
         run: |
           uv run --project ./python python ./memory/memory_demo.py demo
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify the SDK client from another working directory
+        run: |
+          $clientProject = Join-Path $PWD.Path 'python'
+          $clientScript = Join-Path $clientProject 'client.py'
+          # GUI hosts and learner terminals may start outside the checkout.
+          Push-Location ([System.IO.Path]::GetTempPath())
+          try {
+            $clientOutput = uv run --project $clientProject python $clientScript | Out-String
+            if ($LASTEXITCODE) { throw 'SDK client failed' }
+          } finally { Pop-Location }
+          Write-Output $clientOutput
+          foreach ($expected in @('Protocol: 2026-07-28', 'Tools: get_incident', 'Priya Patel', 'Timeouts after a deployment', 'request approval before rollback', 'is_error=True', 'Error executing tool get_incident')) {
+            if (-not $clientOutput.Contains($expected)) { throw "SDK client output missing: $expected" }
+          }
       - name: Generate portable client snippets
         run: ./clients/New-ClientConfigs.ps1
       - name: Verify pinned Inspector tool and resource calls
