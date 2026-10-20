@@ -47,6 +47,11 @@ jobs:
         run: |
           uv run --project ./python python ./memory/memory_demo.py demo
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify the classroom HTTP server locally
+        run: |
+          # Cloud access is unnecessary for testing endpoint routing and backend authentication.
+          uv run --locked --project ./python python ./azure-demo/verify_demo.py --local
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Verify the SDK client from another working directory
         run: |
           $clientProject = Join-Path $PWD.Path 'python'

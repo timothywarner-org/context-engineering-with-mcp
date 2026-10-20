@@ -1,0 +1,234 @@
+{
+  "verifiedAt": "2026-10-20T10:28:09.994555-05:00",
+  "passed": true,
+  "gateway_without_key": {
+    "status": 401,
+    "route": null,
+    "policy": null,
+    "retryAfter": null,
+    "body": {
+      "statusCode": 401,
+      "message": "Access denied due to missing subscription key. Make sure to include subscription key when making requests to an API."
+    }
+  },
+  "direct_without_key": {
+    "status": 401,
+    "route": null,
+    "policy": null,
+    "retryAfter": null,
+    "body": {
+      "error": "Gateway backend credential required"
+    }
+  },
+  "catalog": {
+    "status": 200,
+    "route": "catalog",
+    "policy": null,
+    "retryAfter": null,
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "tools": [
+          {
+            "description": "Read the owner and symptom of a fictional WARNERCO incident.",
+            "inputSchema": {
+              "properties": {
+                "incident_id": {
+                  "title": "Incident Id",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "incident_id"
+              ],
+              "type": "object",
+              "title": "get_incidentArguments"
+            },
+            "name": "get_incident"
+          },
+          {
+            "description": "Read the approved investigation steps for a fictional service.",
+            "inputSchema": {
+              "properties": {
+                "service": {
+                  "default": "Order API",
+                  "title": "Service",
+                  "type": "string"
+                }
+              },
+              "type": "object",
+              "title": "get_runbookArguments"
+            },
+            "name": "get_runbook"
+          },
+          {
+            "description": "Teaching fixture for an operation the gateway must deny.",
+            "inputSchema": {
+              "properties": {
+                "incident_id": {
+                  "title": "Incident Id",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "incident_id"
+              ],
+              "type": "object",
+              "title": "request_rollbackArguments"
+            },
+            "name": "request_rollback"
+          }
+        ]
+      }
+    }
+  },
+  "incident": {
+    "status": 200,
+    "route": "incidents",
+    "policy": null,
+    "retryAfter": null,
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "text": "{\n  \"id\": \"INC-1042\",\n  \"owner\": \"Priya Patel\",\n  \"service\": \"Order API\",\n  \"symptom\": \"Timeouts after a deployment\",\n  \"servedBy\": \"incidents\"\n}",
+            "type": "text"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "sdk": {
+    "protocol": "2026-07-28",
+    "tools": [
+      "get_incident",
+      "get_runbook",
+      "request_rollback"
+    ],
+    "incident": {
+      "id": "INC-1042",
+      "owner": "Priya Patel",
+      "service": "Order API",
+      "symptom": "Timeouts after a deployment",
+      "servedBy": "incidents"
+    }
+  },
+  "spoofed_route": {
+    "status": 200,
+    "route": "incidents",
+    "policy": null,
+    "retryAfter": null,
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "text": "{\n  \"id\": \"INC-1042\",\n  \"owner\": \"Priya Patel\",\n  \"service\": \"Order API\",\n  \"symptom\": \"Timeouts after a deployment\",\n  \"servedBy\": \"incidents\"\n}",
+            "type": "text"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "rollback_denied": {
+    "status": 403,
+    "route": null,
+    "policy": "tool-allowlist-denied",
+    "retryAfter": null,
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "error": {
+        "code": -32001,
+        "message": "Tool denied by the classroom gateway policy"
+      }
+    }
+  },
+  "runbook_1": {
+    "status": 200,
+    "route": "runbooks",
+    "policy": null,
+    "retryAfter": null,
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "text": "{\n  \"service\": \"Order API\",\n  \"steps\": [\n    \"Confirm the deployment time\",\n    \"Inspect request failures\",\n    \"Compare healthy and failing instances\",\n    \"Request approval before rollback\"\n  ],\n  \"servedBy\": \"runbooks\"\n}",
+            "type": "text"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "runbook_2": {
+    "status": 200,
+    "route": "runbooks",
+    "policy": null,
+    "retryAfter": null,
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "text": "{\n  \"service\": \"Order API\",\n  \"steps\": [\n    \"Confirm the deployment time\",\n    \"Inspect request failures\",\n    \"Compare healthy and failing instances\",\n    \"Request approval before rollback\"\n  ],\n  \"servedBy\": \"runbooks\"\n}",
+            "type": "text"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "runbook_3": {
+    "status": 429,
+    "route": null,
+    "policy": null,
+    "retryAfter": "28",
+    "body": {
+      "statusCode": 429,
+      "message": "Rate limit is exceeded. Try again in 28 seconds."
+    }
+  },
+  "incident_after_throttle": {
+    "status": 200,
+    "route": "incidents",
+    "policy": null,
+    "retryAfter": null,
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "text": "{\n  \"id\": \"INC-1042\",\n  \"owner\": \"Priya Patel\",\n  \"service\": \"Order API\",\n  \"symptom\": \"Timeouts after a deployment\",\n  \"servedBy\": \"incidents\"\n}",
+            "type": "text"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "verificationSeconds": 2.97,
+  "commandTimings": [
+    {
+      "seconds": 38.56,
+      "finishedAt": "2026-10-20T15:27:12.2786568Z",
+      "label": "Initial full command"
+    },
+    {
+      "seconds": 8.43,
+      "finishedAt": "2026-10-20T15:28:13.2430056Z",
+      "label": "Warm full command"
+    }
+  ],
+  "timingBoundary": "Test-Demo.ps1 including ARM credential retrieval. These are machine measurements, not presenter rehearsal durations."
+}

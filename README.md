@@ -13,6 +13,7 @@ Tim Warner | Pearson Enterprise Live Training | October 22, 2026
 - `clients/New-ClientConfigs.ps1`: portable configuration generator for three hosts and Inspector.
 - `context/`: small and large fictional incident files for the context audit.
 - `governance/request-review.json`: remote authorization and gateway decision exercise.
+- [`azure-demo/`](azure-demo/README.md): the optional Azure Container Apps and API Management supplement, with tool-specific routes, denial, and throttling.
 - Slides, participant worksheet, and links PDF: in the Resources widget for your Pearson session.
 - `evidence/`: saved verification results from October 7, 2026.
 
@@ -112,6 +113,26 @@ The memory roles adapt the teaching design of [WARNERCO Schematica](https://gith
 Use `context/incident-brief.txt` and `context/large-context.txt` to compare what your host includes. Record only counters the host actually exposes. File bytes and word counts aren't model token measurements. The worksheet provides an explicitly illustrative budget when no reliable counter is available.
 
 Use `governance/request-review.json` to locate token, scope, and data-access decisions. It's a design exercise. The local stdio starters don't implement remote OAuth, gateway deployment, or production identity enforcement.
+
+## Explore the Azure gateway demonstration
+
+The [ACA/APIM supplement](azure-demo/README.md) runs the same fictional incident
+behind a real gateway. It routes incident and runbook tools to separate endpoints
+in one container, denies the rollback fixture, and limits runbook calls while
+incident lookup remains available.
+
+Run the HTTP server checks locally with the course's locked dependencies:
+
+```powershell
+# Verify endpoint behavior without Azure credentials or a model account.
+uv run --locked --project .\python python .\azure-demo\verify_demo.py --local
+```
+
+The supplement includes deployment and live verification scripts for an existing
+Azure environment, plus a [dated, sanitized live report](azure-demo/evidence/live-verification-2026-10-20.json).
+Its authentication uses separate gateway and backend keys. OAuth consent,
+per-user authorization, and private networking remain design extensions.
+Attendees can watch the hosted demonstration without creating Azure resources.
 
 ## Protocol and verification boundary
 

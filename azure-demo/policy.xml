@@ -1,0 +1,76 @@
+<policies>
+  <inbound>
+    <base />
+    <!-- Route from the actual JSON-RPC body, never from a caller's routing hint. -->
+    <set-variable name="rpcMethod" value="@{
+      try { return (string)context.Request.Body.As&lt;JObject&gt;(preserveContent: true)[&quot;method&quot;] ?? &quot;&quot;; }
+      catch { return &quot;&quot;; }
+    }" />
+    <set-variable name="toolName" value="@{
+      try { return (string)context.Request.Body.As&lt;JObject&gt;(preserveContent: true)[&quot;params&quot;]?[&quot;name&quot;] ?? &quot;&quot;; }
+      catch { return &quot;&quot;; }
+    }" />
+    <set-variable name="selectedRoute" value="catalog" />
+    <choose>
+      <when condition="@((string)context.Variables[&quot;rpcMethod&quot;] == &quot;tools/call&quot;)">
+        <choose>
+          <when condition="@((string)context.Variables[&quot;toolName&quot;] == &quot;get_incident&quot;)">
+            <set-variable name="selectedRoute" value="incidents" />
+            <set-backend-service backend-id="warnerco-class-incidents" />
+          </when>
+          <when condition="@((string)context.Variables[&quot;toolName&quot;] == &quot;get_runbook&quot;)">
+            <set-variable name="selectedRoute" value="runbooks" />
+            <!-- Subscription identity prevents callers from choosing a fresh throttle key. -->
+            <rate-limit-by-key calls="2" renewal-period="60"
+              counter-key="@(&quot;warnerco-class-runbook:&quot; + context.Subscription.Id)"
+              retry-after-header-name="Retry-After" />
+            <set-backend-service backend-id="warnerco-class-runbooks" />
+          </when>
+          <otherwise>
+            <return-response>
+              <set-status code="403" reason="Tool forbidden" />
+              <set-header name="Content-Type" exists-action="override"><value>application/json</value></set-header>
+              <set-header name="X-Warnerco-Policy" exists-action="override"><value>tool-allowlist-denied</value></set-header>
+              <set-body>@{
+                var request = context.Request.Body.As&lt;JObject&gt;(preserveContent: true);
+                return new JObject(
+                  new JProperty("jsonrpc", "2.0"),
+                  new JProperty("id", request["id"]),
+                  new JProperty("error", new JObject(
+                    new JProperty("code", -32001),
+                    new JProperty("message", "Tool denied by the classroom gateway policy")
+                  ))
+                ).ToString();
+              }</set-body>
+            </return-response>
+          </otherwise>
+        </choose>
+      </when>
+    </choose>
+    <!-- This backend credential differs from the caller's APIM subscription key. -->
+    <set-header name="X-Warnerco-Backend-Key" exists-action="override">
+      <value>{{warnerco-class-backend-key}}</value>
+    </set-header>
+    <set-header name="Ocp-Apim-Subscription-Key" exists-action="delete" />
+    <set-query-parameter name="subscription-key" exists-action="delete" />
+    <set-header name="X-Warnerco-Route" exists-action="delete" />
+    <trace source="warnerco-class-mcp" severity="information">
+      <message>Classroom MCP routing decision</message>
+      <metadata name="tool" value="@(string.IsNullOrEmpty((string)context.Variables[&quot;toolName&quot;]) ? &quot;none&quot; : (string)context.Variables[&quot;toolName&quot;])" />
+      <metadata name="route" value="@((string)context.Variables[&quot;selectedRoute&quot;])" />
+    </trace>
+  </inbound>
+  <backend>
+    <!-- Reading response bodies would buffer a streaming MCP response. -->
+    <forward-request timeout="30" buffer-response="false" />
+  </backend>
+  <outbound>
+    <base />
+    <set-header name="X-Warnerco-Route" exists-action="override">
+      <value>@((string)context.Variables["selectedRoute"])</value>
+    </set-header>
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
