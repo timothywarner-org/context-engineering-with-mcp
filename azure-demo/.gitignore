@@ -1,0 +1,2 @@
+# Deployment identifiers, DPAPI credentials, build staging, and logs stay local.
+.local/
