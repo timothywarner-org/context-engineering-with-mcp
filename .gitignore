@@ -21,3 +21,6 @@ clients/generated/
 .local/
 *.pem
 *.key
+
+# Agent coordination notes stay local to the instructor checkout.
+/COORDINATION.md
