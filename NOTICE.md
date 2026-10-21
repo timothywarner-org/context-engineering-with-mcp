@@ -14,3 +14,10 @@ https://github.com/timothywarner-org/context-engineering/tree/main/src/warnerco/
 
 Primary conceptual source: Sumers et al., Cognitive Architectures for Language Agents, 2024.
 https://arxiv.org/abs/2309.02427
+
+The memory-mcp storage adapter derives from Tim Warner's Copilot Memory Store,
+commit 6f6f8fba9f0fa6f3221ed52d4fb1570f8fba3896, src/memoryStore.ts.
+Its original MIT notice is preserved in [memory-mcp/LICENSE.upstream](memory-mcp/LICENSE.upstream).
+Source: https://github.com/timothywarner-org/copilot-memory-store
+The adaptation removes cloud summarization and destructive operations, validates
+storage and input, removes recency-only relevance, and reports bounded selection accurately.

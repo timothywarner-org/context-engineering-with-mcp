@@ -44,6 +44,19 @@ jobs:
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           npm run build
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Install and verify locked memory MCP server
+        working-directory: memory-mcp
+        run: |
+          npm ci
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run build
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm test
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify MCP memory lifecycle with independent clients
+        run: |
+          uv run --locked --project ./python python ./memory-mcp/demo.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Verify both protocol implementations
         run: |
           uv run --project ./python python ./verify_protocol.py
@@ -80,7 +93,14 @@ jobs:
           }
       - name: Generate portable client snippets
         run: |
-          ./clients/New-ClientConfigs.ps1
+          ./clients/New-ClientConfigs.ps1 -OutputDirectory clients/generated/python-only
+          if (-not $?) { throw "Python-only configuration generation failed" }
+          uv run --locked --project ./python python ./clients/verify_configs.py --directory clients/generated/python-only --python-only
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          ./clients/New-ClientConfigs.ps1 -IncludeMemory
+          if (-not $?) { throw "Two-server configuration generation failed" }
+          uv run --locked --project ./python python ./clients/verify_configs.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           $inspector = Get-Content clients/generated/inspector.json -Raw | ConvertFrom-Json
           if ($inspector.mcpServers.'warnerco-incidents'.protocolEra -ne 'modern') {
             throw 'Inspector must select the modern protocol without a CLI override.'
@@ -104,6 +124,12 @@ jobs:
           $inspectorResourceOutput = npx --yes @modelcontextprotocol/inspector@2.9.0 --cli --config clients/generated/inspector.json --server warnerco-incidents --method resources/read --uri warnerco://runbooks/order-api --format json | Out-String
           if ($LASTEXITCODE -ne 0 -or $inspectorResourceOutput -notmatch 'request approval before rollback') { throw 'Inspector resource result failed verification' }
           Write-Output $inspectorResourceOutput
+      - name: Verify memory discovery through pinned Inspector
+        run: |
+          $memoryTools = npx --yes @modelcontextprotocol/inspector@2.9.0 --cli --config clients/generated/inspector.json --server warnerco-memory --method tools/list --format json | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw "Memory Inspector discovery failed" }
+          $names = @($memoryTools.result.tools.name | Sort-Object)
+          if (($names -join ",") -ne "memory_compress,memory_search,memory_write") { throw "Unexpected memory tools" }
       - name: Retain protocol evidence
         if: always()
         uses: actions/upload-artifact@v4
