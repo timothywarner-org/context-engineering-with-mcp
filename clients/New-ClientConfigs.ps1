@@ -1,3 +1,4 @@
+#Requires -Version 7.0
 <#
 .SYNOPSIS
 Generate portable launch snippets for the incident server and optional memory server.
@@ -54,4 +55,4 @@ try {
     }
     @{mcpServers=$inspector} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $OutputDirectory 'inspector.json') -Encoding utf8
     Write-Output "Generated snippets in $OutputDirectory. Merge only the named WARNERCO entries; preserve unrelated settings."
-} catch { Write-Error "Client configuration generation failed: $_"; exit 1 }
+} catch { Write-Error "Client configuration generation failed: $_" -ErrorAction Continue; exit 1 }

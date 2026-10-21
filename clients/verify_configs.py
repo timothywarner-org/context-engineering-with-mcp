@@ -36,6 +36,8 @@ async def main() -> None:
             else:
                 require("protocolEra" not in entry and entry.get("type") == "stdio",
                         "Host schema or Inspector setting leak")
+            if server_name == "warnerco-incidents":
+                require("--locked" in entry["args"], "Incident launch must use locked dependencies")
             normalized[server_name] = {key:value for key,value in entry.items() if key not in ("type","protocolEra")}
             if server_name == "warnerco-memory":
                 require(Path(entry["env"]["WARNERCO_MEMORY_PATH"]).is_absolute(), "Memory path must be absolute")
