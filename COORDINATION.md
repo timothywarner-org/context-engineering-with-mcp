@@ -33,8 +33,9 @@ Keep it concise and technical. No secrets, private publisher content, or persona
 
 ## Review Queue
 
-- No implementation commit has been handed off yet. Codex will record the exact SHA
-  with [NEEDS REVIEW - CLAUDE], including commands and verification evidence.
+- [NEEDS REVIEW - CLAUDE] Ready for review: 1f68bc1e1419ceeb6a3878aeaddb489327162ebf.
+  Scope: memory server, tests, SDK lifecycle, generated configs and CI. Docs follow separately.
+  Run the updated verify.yml sequence. R1-R3 generator follow-up is claimed by Codex.
 
 ## Completed
 
@@ -56,10 +57,10 @@ reread and preserve the other agent's section. Do not bypass a stale claim.
 | P2 | Two-segment learner narrative | [IN PROGRESS - CODEX] | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md, memory-mcp/README.md |
 | P2 | Private timed run of show and slide-change proposal | [IN PROGRESS - CODEX] | New ignored instructor runbook and signpost updates; no terminal cheat sheet |
 | P2 | Terminal cheat sheet and VS Code host merge | [IN PROGRESS - CLAUDE] | Ignored Terminal-Cheat-Sheet.html and .vscode/mcp.json |
-| P1 | Independent Linux/Windows adversarial verification of Codex changes | [TODO] | Read-only review after exact implementation SHA is handed off |
+| P1 | Independent Linux/Windows adversarial verification of Codex changes | [NEEDS REVIEW - CLAUDE] | Read-only review after exact implementation SHA is handed off |
 | P1 | Codex review of Claude branding, diagram and metadata | [IN PROGRESS - CODEX] | Read-only review of 42befa4 and repository metadata |
 | P1 | Final teaching-clone sync and agreement on verified commit | [TODO] | Claude owns original teaching clone; both record evidence |
-| P1 | Generator fixes R1-R3 from Claude's review of 2b1b4a4 | [REJECTED - NEEDS FIX] | clients/New-ClientConfigs.ps1 and its CI assertion (Codex boundary) |
+| P1 | Generator fixes R1-R3 from Claude's review of 2b1b4a4 | [IN PROGRESS - CODEX] | clients/New-ClientConfigs.ps1 and its CI assertion (Codex boundary) |
 | P2 | Upload images/social-preview.png in repository settings | [IN PROGRESS - CLAUDE] | GitHub repository settings only |
 
 The peer agent is Claude. Codex's internal documentation/review workers operate
@@ -83,8 +84,8 @@ Assumptions and unverified dependencies are recorded here.
 - No live Azure deployment or new cloud-state claim is needed for the architecture walkthrough.
 - Local OS access is the demo memory security boundary; it is not a multi-tenant service.
 - No force pushes, PRs, unrelated repository edits, or unverified class-ready claim.
-- Claude: Codex can't read ignored files in the teaching clone, so cheat-sheet review
-  relies on the Test-CheatSheet.ps1 output Claude posts here.
+- Codex can read ignored files in the teaching clone but cannot write there.
+  Direct cheat-sheet review is possible when Claude marks it ready.
 - Claude: Tim's PC has uv 0.7.21 at C:\Program Files\Python313\Scripts\uv.exe, Node 25.9.0,
   and Python 3.14 as the default python. CI uses Node 22 and current setup-uv.
 - Claude: at 21:58Z Tim's PC ran 5 warnerco-incidents servers (15 processes) owned by live
@@ -112,6 +113,25 @@ Claude's adversarial review of code already on main (2b1b4a4). Codex owns the fi
   Set-Content -Encoding utf8 writes a BOM into JSON host configs. Fix: add #Requires -Version 7.0.
 
 ## Codex
+
+Ready for review: 1f68bc1e1419ceeb6a3878aeaddb489327162ebf (implementation).
+All baseline regressions, 5 memory tests, full SDK memory demo, five configuration
+formats, Python-only config, Inspector discovery/compress and original calls passed.
+R1 is implemented via --locked; adding its assertion plus R2/R3 now.
+Docs and private run-of-show are still in flight.
+
+Memory commands for Claude's cheat sheet (run from repo root):
+- Build/test: npm --prefix memory-mcp ci; npm --prefix memory-mcp run build; npm --prefix memory-mcp test.
+- Generate both: ./clients/New-ClientConfigs.ps1 -IncludeMemory.
+- Full story: uv run --locked --project ./python python ./memory-mcp/demo.py.
+- Pause at boundary: same command with --phase write, then --phase retrieve.
+- Budget: --phase retrieve --budget 200; restore with --budget 400.
+- State: .local/memory/warnerco.json; explicit request: .local/memory/host-context.txt.
+- Reset for rehearsal: identical writes are idempotent. For a fresh dataset choose a NEW
+  absolute JSON path, use -MemoryPath in generator and --memory-path in demo consistently,
+  then merge/restart named host entries. No purge tool or automatic data deletion.
+- Direct server if needed: node ./memory-mcp/dist/server.js; normally clients own subprocesses.
+
 
 Updated: 2026-10-21. Status: implementation, documentation and review in progress.
 
