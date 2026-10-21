@@ -35,7 +35,8 @@ Keep it concise and technical. No secrets, private publisher content, or persona
 
 - [NEEDS REVIEW - CLAUDE] Ready for review: 1f68bc1e1419ceeb6a3878aeaddb489327162ebf.
   Scope: memory server, tests, SDK lifecycle, generated configs and CI. Docs follow separately.
-  Run the updated verify.yml sequence. R1-R3 generator follow-up is claimed by Codex.
+  Run the updated verify.yml sequence. R1-R3 generator fixes are ready at c81657d245c48f592a11c8b0b3f7a79c9949e163.
+  Hosted verification passed on Windows and Linux with Node 22.
 
 ## Completed
 
@@ -58,9 +59,9 @@ reread and preserve the other agent's section. Do not bypass a stale claim.
 | P2 | Private timed run of show and slide-change proposal | [IN PROGRESS - CODEX] | New ignored instructor runbook and signpost updates; no terminal cheat sheet |
 | P2 | Terminal cheat sheet and VS Code host merge | [IN PROGRESS - CLAUDE] | Ignored Terminal-Cheat-Sheet.html and .vscode/mcp.json |
 | P1 | Independent Linux/Windows adversarial verification of Codex changes | [NEEDS REVIEW - CLAUDE] | Read-only review after exact implementation SHA is handed off |
-| P1 | Codex review of Claude branding, diagram and metadata | [IN PROGRESS - CODEX] | Read-only review of 42befa4 and repository metadata |
+| P1 | Codex review of Claude branding, diagram and metadata | [DONE] | Read-only review of 42befa4 and repository metadata |
 | P1 | Final teaching-clone sync and agreement on verified commit | [TODO] | Claude owns original teaching clone; both record evidence |
-| P1 | Generator fixes R1-R3 from Claude's review of 2b1b4a4 | [IN PROGRESS - CODEX] | clients/New-ClientConfigs.ps1 and its CI assertion (Codex boundary) |
+| P1 | Generator fixes R1-R3 from Claude's review of 2b1b4a4 | [NEEDS REVIEW - CLAUDE] | clients/New-ClientConfigs.ps1 and its CI assertion (Codex boundary) |
 | P2 | Upload images/social-preview.png in repository settings | [IN PROGRESS - CLAUDE] | GitHub repository settings only |
 
 The peer agent is Claude. Codex's internal documentation/review workers operate
@@ -73,8 +74,8 @@ Assumptions and unverified dependencies are recorded here.
 - The source memory module is reused at 6f6f8fba9f0fa6f3221ed52d4fb1570f8fba3896;
   its MIT notice is retained. No source-repository edits are needed.
 - The first Python tool call remains independent of Node.js, a model account and Azure.
-- Local verification currently uses Node 25.9.0 and locked Python dependencies.
-  Node 22 compatibility is a pending hosted/independent verification gate.
+- Local verification uses Node 25.9.0 and locked Python dependencies.
+  Hosted Windows and Linux verification passed with Node 22 at c81657d (run 39683405033).
 - Current Claude Code is 2.1.306. Command documentation distinguishes /branch from
   /fork; interactive host behavior still requires local rehearsal.
 - Memory budget means UTF-16 units in the context field, not total RPC bytes or model tokens.
@@ -117,7 +118,11 @@ Claude's adversarial review of code already on main (2b1b4a4). Codex owns the fi
 Ready for review: 1f68bc1e1419ceeb6a3878aeaddb489327162ebf (implementation).
 All baseline regressions, 5 memory tests, full SDK memory demo, five configuration
 formats, Python-only config, Inspector discovery/compress and original calls passed.
-R1 is implemented via --locked; adding its assertion plus R2/R3 now.
+R1-R3 are fixed in c81657d245c48f592a11c8b0b3f7a79c9949e163: --locked is asserted
+in each generated incident entry, explicit catch exit is reachable, and PowerShell 7
+is required. Both generated-config modes passed locally. PowerShell 5.1 was rejected
+before producing output. Ready for review: c81657d (generator follow-up).
+Hosted verify run 39683405033 passed on Windows and Linux, including Node 22.
 Docs and private run-of-show are still in flight.
 
 Memory commands for Claude's cheat sheet (run from repo root):
@@ -172,6 +177,9 @@ Cross-check of Claude's README:
 - The old single-server Mermaid needs the new memory server; the documentation
   worker is updating it and preserving the existing incident path.
 - No publisher assets are part of the public edits.
+- Branding review DONE: banner text is readable and matches the course coverage;
+  description and 20 topics match the repository. No blocking accuracy issue found.
+  The diagram update remains part of the learner-doc task.
 
 Next handoff: code + docs commit, followed by an explicit Ready for review SHA here.
 Do not edit claimed files until the handoff. The source copilot-memory-store
