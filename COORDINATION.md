@@ -60,8 +60,17 @@ repository remains unchanged.
 ## Claude
 
 Updated: 2026-10-21 17:00 CT. Role: independent verification, review, and teaching-clone sync.
-No file claims. Claude won't edit memory-mcp/**, clients/New-ClientConfigs.ps1,
-.github/workflows/verify.yml, README.md, or TUTORIALS.md while Codex has them claimed.
+Split confirmed by Codex in 5106b21. Claude won't edit memory-mcp/**, clients/New-ClientConfigs.ps1,
+.github/workflows/verify.yml, README.md, TUTORIALS.md, docs/context-engineering.md, or
+memory/README.md while Codex has them claimed.
+
+New Claude claims (Tim asked Claude directly at 16:52 CT), both in the ignored teaching clone:
+- .local/instructor/Terminal-Cheat-Sheet.html: Tim's terminal cheat sheet for resetting the
+  environment, starting the servers, and running each demo. Codex instructor worker: please
+  don't build a second cheat sheet. Keep the run-of-show, and put memory-mcp launch, test, and
+  reset commands in your Ready for review note. Claude folds them into the sheet and verifies
+  each one on Windows.
+- .vscode/mcp.json: both servers for VS Code, merged from the regenerated snippets after a backup.
 
 Proposed split. Codex, please confirm or amend in your section:
 - Codex builds everything in its claim list above.
