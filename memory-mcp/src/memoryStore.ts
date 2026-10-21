@@ -104,7 +104,7 @@ export function resolveMemoryPath(value = process.env.WARNERCO_MEMORY_PATH): str
   return fileURLToPath(new URL('../../.local/memory/warnerco.json', import.meta.url));
 }
 
-export function loadStore(memoryPath: string): MemoryRecord[] {
+function readStore(memoryPath: string): MemoryRecord[] {
   if (!path.isAbsolute(memoryPath)) throw new Error('Memory path must be absolute.');
   try {
     if (fs.statSync(memoryPath).size > 8 * 1024 * 1024) throw new Error('Memory file exceeds the 8 MiB demo limit.');
@@ -117,6 +117,48 @@ export function loadStore(memoryPath: string): MemoryRecord[] {
   }
 }
 
+/** Readers participate in locking because Windows can deny replacement of an open file. */
+export async function loadStore(memoryPath: string): Promise<MemoryRecord[]> {
+  if (!path.isAbsolute(memoryPath)) throw new Error('Memory path must be absolute.');
+  fs.mkdirSync(path.dirname(memoryPath), {recursive:true});
+  const lock = memoryPath + '.lock';
+  await acquireLock(lock);
+  try { return readStore(memoryPath); }
+  finally { fs.unlinkSync(lock); }
+}
+
+/** Serialize stale-lock recovery so two contenders cannot unlink a new owner's lock. */
+function recoverDeadLock(lock: string): boolean {
+  const guard = lock + '.recovery';
+  let fd: number;
+  try { fd = fs.openSync(guard, 'wx', 0o600); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST') return false;
+    throw error;
+  }
+  try {
+    const stat = fs.statSync(lock);
+    if (Date.now() - stat.mtimeMs < 5000 || stat.size > 16) return false;
+    const value = fs.readFileSync(lock, 'utf8').trim();
+    if (!/^[1-9][0-9]*$/.test(value)) return false;
+    const pid = Number(value);
+    if (!Number.isSafeInteger(pid) || pid > 2147483647) return false;
+    try { process.kill(pid, 0); return false; }
+    catch (error) {
+      // EPERM and unknown failures do not prove that the owner is dead.
+      if ((error as NodeJS.ErrnoException).code !== 'ESRCH') return false;
+    }
+    fs.unlinkSync(lock);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return true;
+    throw error;
+  } finally {
+    fs.closeSync(fd);
+    fs.unlinkSync(guard);
+  }
+}
+
 async function acquireLock(lock: string): Promise<void> {
   const started = Date.now();
   while (true) {
@@ -124,6 +166,7 @@ async function acquireLock(lock: string): Promise<void> {
     try { fd = fs.openSync(lock, 'wx', 0o600); }
     catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+      if (recoverDeadLock(lock)) continue;
       if (Date.now() - started >= 2500) throw new Error('Memory store busy. Close writers and inspect a stale lock before retrying.');
       await new Promise(resolve => setTimeout(resolve, 50));
       continue;
@@ -135,15 +178,30 @@ async function acquireLock(lock: string): Promise<void> {
   }
 }
 
+/** Windows readers may briefly prevent replacement even though the writer holds its lock. */
+async function replaceFile(temp: string, destination: string): Promise<void> {
+  const deadline = Date.now() + 2000;
+  let delay = 10;
+  while (true) {
+    try { fs.renameSync(temp, destination); return; }
+    catch (error) {
+      const code = (error as NodeJS.ErrnoException).code ?? '';
+      if (!['EPERM', 'EACCES', 'EBUSY'].includes(code) || Date.now() >= deadline) throw error;
+      await new Promise(resolve => setTimeout(resolve, Math.min(delay, deadline - Date.now())));
+      delay = Math.min(delay * 2, 250);
+    }
+  }
+}
+
 /** File replacement avoids partial JSON; the adjacent lock serializes writers. */
-function atomicWrite(memoryPath: string, records: MemoryRecord[]): void {
+async function atomicWrite(memoryPath: string, records: MemoryRecord[]): Promise<void> {
   const data = JSON.stringify(records, null, 2) + '\n';
   if (records.length > 10000 || Buffer.byteLength(data) > 8 * 1024 * 1024)
     throw new Error('Memory store full: choose a new fictional demo file.');
   const temp = memoryPath + '.tmp.' + crypto.randomUUID();
   try {
     fs.writeFileSync(temp, data, {flag:'wx', mode:0o600});
-    fs.renameSync(temp, memoryPath);
+    await replaceFile(temp, memoryPath);
   } finally {
     if (fs.existsSync(temp)) fs.unlinkSync(temp);
   }
@@ -157,13 +215,13 @@ export async function addMemory(memoryPath: string, input: z.input<typeof writeS
   const lock = memoryPath + '.lock';
   await acquireLock(lock);
   try {
-    const records = loadStore(memoryPath);
+    const records = readStore(memoryPath);
     // Identical rehearsal retries reuse the record; differing text is a new decision.
     const existing = records.find(r => r.text === text && JSON.stringify(r.tags) === JSON.stringify(tags));
     if (existing) return existing;
     const record: MemoryRecord = {id:makeId(), text, tags, keywords:extractKeywords(text),
       createdAt:nowIso(), updatedAt:nowIso(), deletedAt:null};
-    atomicWrite(memoryPath, [...records, record]);
+    await atomicWrite(memoryPath, [...records, record]);
     return record;
   } finally { fs.unlinkSync(lock); }
 }

@@ -17,7 +17,6 @@ from mcp import Client, StdioServerParameters
 from mcp.types import TextContent, TextResourceContents
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MEMORY = ROOT / ".local/memory/warnerco.json"
 DEFAULT_CONTEXT = ROOT / ".local/memory/host-context.txt"
 NOTE = ("INC-1042 Order API decision: compare healthy and failing instances before "
         "proposing a rollback. Priya Patel owns the investigation. Request approval "
@@ -85,24 +84,39 @@ async def phase(args) -> None:
         print("PASS: persistence, independent retrieval, budget, missing case, explicit context handoff.", flush=True)
         print("No model was invoked. A saved file alone is not a host response.", flush=True)
 
+def run_demo(args) -> None:
+    for name in ("write", "retrieve"):
+        # Independent clients share only an explicit absolute store and request path.
+        subprocess.run([sys.executable, str(Path(__file__).resolve()), "--phase", name,
+            "--memory-path", str(args.memory_path), "--context-path", str(args.context_path),
+            "--budget", str(args.budget)], cwd=tempfile.gettempdir(), check=True, timeout=40)
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--phase", choices=["demo","write","retrieve"], default="demo")
-    parser.add_argument("--memory-path", type=Path, default=DEFAULT_MEMORY)
+    parser.add_argument("--memory-path", type=Path,
+                        help="Absolute store path. Required for split phases; full demo defaults to a temporary store.")
     parser.add_argument("--context-path", type=Path, default=DEFAULT_CONTEXT)
     parser.add_argument("--budget", type=int, default=400)
     args = parser.parse_args()
-    require(args.memory_path.is_absolute() and args.context_path.is_absolute(),
-            "Memory and context paths must be absolute.")
-    require(args.memory_path.resolve() != args.context_path.resolve(),
-            "Context output must not overwrite the memory store.")
+    require(args.context_path.is_absolute(), "Context path must be absolute.")
     require(200 <= args.budget <= 8000, "Budget must be 200-8000.")
+    if args.memory_path is not None:
+        require(args.memory_path.is_absolute(), "Memory path must be absolute.")
+        require(args.memory_path.resolve() != args.context_path.resolve(),
+                "Context output must not overwrite the memory store.")
+    elif args.phase != "demo":
+        parser.error("--memory-path is required for write/retrieve; choose the same absolute path for both.")
     if args.phase == "demo":
-        for name in ("write","retrieve"):
-            # Independent clients start from an unrelated directory with the same absolute data path.
-            subprocess.run([sys.executable, str(Path(__file__).resolve()), "--phase",name,
-                "--memory-path",str(args.memory_path), "--context-path",str(args.context_path),
-                "--budget",str(args.budget)], cwd=tempfile.gettempdir(), check=True, timeout=40)
+        if args.memory_path is None:
+            # Rehearsals must not pre-seed the host's persistent live store.
+            with tempfile.TemporaryDirectory(prefix="warnerco-memory-demo-") as directory:
+                args.memory_path = Path(directory) / "memory.json"
+                print("Isolated rehearsal store: " + str(args.memory_path), flush=True)
+                run_demo(args)
+            print("Temporary rehearsal store removed; the explicit request file remains.", flush=True)
+        else:
+            run_demo(args)
     else:
         asyncio.run(asyncio.wait_for(phase(args), timeout=30))
 

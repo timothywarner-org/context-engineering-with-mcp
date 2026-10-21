@@ -52,12 +52,24 @@ durable memory, and access decisions. All business data is fictional.
 | 6. Decide who may do what | [Governance exercise](#context-audit-and-governance-practice) | Where token, scope, and data-access decisions belong. |
 | Optional extension | [Azure gateway demonstration](#explore-the-azure-gateway-demonstration) | How routing, denial, and throttling affect real requests. |
 
+### Two ways to practice the same workflow
+
+The first segment is developer-focused: inspect the server contract, run the
+model-free client, and prove persistence and selection with two MCP servers.
+The second is maker/author-focused: use a host to inspect its context, select
+tools and evidence, compare workflow guidance, and reuse a saved decision in a
+fresh conversation. Both use the same fictional incident.
+
+Continue with [context, instructions and memory](docs/context-engineering.md)
+to distinguish skills, subagents, conversation branches and durable records.
+
 ## What is in this repository
 
 - `python/`: official MCP Python SDK 2.3.0 starter, pinned with `uv.lock`.
 - `python/client.py`: small SDK client that calls the existing server without a model or API key.
 - `typescript/`: official TypeScript SDK server 2.3.1 starter, pinned with `package-lock.json`.
-- `memory/memory_demo.py`: working, episodic, semantic, and procedural memory example.
+- [`memory-mcp/`](memory-mcp/README.md): three MCP tools for durable local JSON memory.
+- [`memory/`](memory/README.md): optional Python-only SQLite comparison.
 - `clients/New-ClientConfigs.ps1`: portable configuration generator for three hosts and Inspector.
 - `context/`: small and large fictional incident files for the context audit.
 - `governance/request-review.json`: remote authorization and gateway decision exercise.
@@ -67,21 +79,24 @@ durable memory, and access decisions. All business data is fictional.
 
 ### How the pieces connect
 
-Every client below talks to the same `warnerco-incidents` server over stdio, so you
-can compare a scripted client, Inspector, and an AI host against identical data.
-The memory demonstration runs on its own, and the Azure supplement puts the same
-fictional incident behind a real gateway.
+A host or SDK client can connect to two independent stdio servers. The incident
+server supplies facts, a runbook resource and an investigation prompt. The memory
+server stores selected decisions and retrieves them for later requests.
+The application decides what evidence enters the model's context.
 
 ```mermaid
-flowchart LR
-    PY["python/client.py<br/>no model or API key"] --> S
-    INS["MCP Inspector"] --> S
-    HOST["GitHub Copilot, Claude Code,<br/>or Claude Desktop"] --> S
-    S{{"warnerco-incidents<br/>MCP server over stdio"}}
-    S --> T["Tool<br/>get_incident"]
-    S --> R["Resource<br/>order-api runbook"]
-    S --> P["Prompt<br/>investigate_incident"]
+flowchart TD
+    C["Host or SDK client"] --> I["warnerco-incidents"]
+    C --> M["warnerco-memory"]
+    I --> F["Incident, runbook and prompt"]
+    M --> J["Local JSON decisions"]
+    F --> A["Application selects request context"]
+    J --> A
 ```
+
+MCP carries requests and results. Durable storage, compression policy and
+authorization remain application responsibilities. The optional Azure supplement
+adds a separate HTTP gateway example.
 
 ## Optional preparation
 
@@ -123,7 +138,8 @@ error from a failed demo.
 
 | Exercise | Additional preparation |
 |---|---|
-| Memory or local HTTP checks | None beyond the locked Python setup above. |
+| SQLite memory or local HTTP checks | None beyond the locked Python setup above. |
+| MCP memory lifecycle | Node.js 22.19 or later with npm; build memory-mcp below. |
 | Inspector | Node.js 22.19 or later with npm; generate the client snippets below. |
 | TypeScript implementation and full regression checks | Node.js 22.19 or later with npm; install and build below. |
 | Host integration | A supported host and its required account/access; generate snippets and review consent. |
@@ -209,11 +225,12 @@ This setting is specific to Inspector and isn't added to the other host snippets
 
 ## Connect a host
 
-Generate snippets first. Merge only `warnerco-incidents` into your existing configuration; don't replace unrelated server settings.
+Generate snippets first. The default contains only `warnerco-incidents`. After building memory-mcp, regenerate with `-IncludeMemory` and merge both named WARNERCO entries. Preserve unrelated settings.
 
 | Host | Supplied snippet | Placement |
 |---|---|---|
 | GitHub Copilot in VS Code | `clients/generated/vscode-mcp.json` | Workspace `.vscode/mcp.json`, using `servers` |
+| Portable Copilot | `clients/generated/copilot-mcp.json` | Supported Copilot destination, using `mcpServers`; follow your selected harness guide |
 | Claude Code | `clients/generated/claude-code.mcp.json` | Project `.mcp.json`, using `mcpServers` |
 | Claude Desktop | `clients/generated/claude-desktop.json` | Desktop configuration described in the official local-server guide, using `mcpServers` |
 
@@ -255,21 +272,48 @@ Picker labels and prompt prefixes can vary by version; select the discovered ent
 
 ## Understand the memory demonstration
 
-From the same repository root:
+Build the second server once. This exercise adds Node.js 22.19 or later with npm
+to the locked Python setup; the first incident call still needs Python only.
 
 ```powershell
-# A temporary database makes this repeatable without altering prior practice.
-uv run --locked --project .\python python .\memory\memory_demo.py demo
-if ($LASTEXITCODE) { throw 'Memory demonstration failed.' }
+npm --prefix memory-mcp ci
+if ($LASTEXITCODE) { throw 'Memory dependency installation failed.' }
+npm --prefix memory-mcp run build
+if ($LASTEXITCODE) { throw 'Memory build failed.' }
+npm --prefix memory-mcp test
+if ($LASTEXITCODE) { throw 'Memory tests failed.' }
+.\clients\New-ClientConfigs.ps1 -IncludeMemory
+if (-not $?) { throw 'Two-server configuration generation failed.' }
+uv run --locked --project .\python python .\memory-mcp\demo.py
+if ($LASTEXITCODE) { throw 'MCP memory demonstration failed.' }
 ```
 
-The example starts separate Python processes. A process-local value is lost. A note and event written to SQLite survive the next process. It then retrieves a durable fact and a versioned procedure, and verifies that a different scope sees no working notes or events.
+Follow the output: retrieve INC-1042 and its runbook, write a decision, close that
+session, retrieve it in an independent process, select and compress it, then
+assemble an explicit request file. The tools are **memory_write**, **memory_search**
+and **memory_compress**. Hosts use local JSON at `.local/memory/warnerco.json`.
+The full scripted demo uses a temporary store, then removes it after proving
+persistence across its two child processes. It leaves the request file and does
+not pre-seed the host store. Split phases require an explicit absolute memory path.
 
-SQLite proves a local process boundary. It isn't a distributed storage demonstration. Retrieval is lexical, not embeddings. Scope is a filter, not authorization. Production replicas require a suitable shared service, authorized identity-to-scope binding, concurrent-write behavior, retention, and a retrieval strategy that fits the workload.
+The demo writes `.local/memory/host-context.txt`. Open a fresh host chat and
+attach or paste that file to complete the model-facing reuse step. Inspect the
+answer and actual tool activity. The script invokes no model; a saved file alone
+is not evidence that a host used it.
 
-The memory example draws on WARNERCO Schematica. The complete local exercise is
-here; the optional architectural reference is listed under
-[Further reading](#further-reading).
+Search uses exact English word matches, tags and keywords, with no recency bonus
+for unrelated notes. Compression selects and truncates; it does not summarize
+with an LLM. The budget bounds UTF-16 units in the returned `context` field, not
+model tokens or the complete JSON response. A small budget may cut a caveat, so
+inspect the result before use.
+
+Use the [numbered tutorial](TUTORIALS.md#4-carry-memory-across-processes) for the
+session boundary, missing-memory case, budget comparison and explicit host reuse.
+See the [memory server reference](memory-mcp/README.md) for schema and limits.
+
+The original [SQLite memory exercise](memory/README.md) remains an optional
+Python-only comparison of working, episodic, semantic and procedural memory.
+It is a separate application and does not share the new JSON store.
 
 ## Context audit and governance practice
 
@@ -333,7 +377,9 @@ second setup route for this session.** Keep this repository as your working copy
 - TypeScript module not found: run `npm ci` and `npm run build` inside `typescript`.
 - Discovery returns Method not found: inspect SDK version, protocol era, and the server entry point. Compare with the supplied files.
 - Tool is listed but fails: inspect arguments and the returned error; use `INC-1042` for the known success case.
-- No notes returned: verify the database path and scope. Storing a note doesn't automatically place it in model context.
+- No JSON memory returned: verify the absolute path and meaningful search terms. Empty hits are a successful search with no matching evidence.
+- Memory file error or busy lock: preserve the file; inspect the error and active writers. Never delete data or a lock while a writer may be using it.
+- SQLite notes missing: verify that exercise's separate database path and scope.
 
 ## Instructor
 

@@ -28,11 +28,11 @@ function createServer(): McpServer {
   server.registerTool('memory_search', {
     description:'Search stored memories by deterministic keyword relevance. Unmatched queries return no hits.',
     inputSchema:searchSchema, annotations:readonly
-  }, args => guarded(() => ({hits:search(loadStore(memoryPath),args)})));
+  }, args => guarded(async () => ({hits:search(await loadStore(memoryPath),args)})));
   server.registerTool('memory_compress', {
     description:'Select and truncate relevant memory into a context field within a UTF-16 character budget. Not semantic summarization. The host must explicitly use the context.',
     inputSchema:compressSchema, annotations:readonly
-  }, args => guarded(() => compressDeterministic(loadStore(memoryPath),args)));
+  }, args => guarded(async () => compressDeterministic(await loadStore(memoryPath),args)));
   return server;
 }
 try {

@@ -55,15 +55,17 @@ jobs:
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Verify MCP memory lifecycle with independent clients
         run: |
+          uv run --locked --project ./python python ./memory-mcp/test_demo.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           uv run --locked --project ./python python ./memory-mcp/demo.py
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Verify both protocol implementations
         run: |
-          uv run --project ./python python ./verify_protocol.py
+          uv run --locked --project ./python python ./verify_protocol.py
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Verify memory across processes
         run: |
-          uv run --project ./python python ./memory/memory_demo.py demo
+          uv run --locked --project ./python python ./memory/memory_demo.py demo
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Verify restart and retry safety
         run: |
@@ -84,7 +86,7 @@ jobs:
           # GUI hosts and learner terminals may start outside the checkout.
           Push-Location ([System.IO.Path]::GetTempPath())
           try {
-            $clientOutput = uv run --project $clientProject python $clientScript | Out-String
+            $clientOutput = uv run --locked --project $clientProject python $clientScript | Out-String
             if ($LASTEXITCODE) { throw 'SDK client failed' }
           } finally { Pop-Location }
           Write-Output $clientOutput
