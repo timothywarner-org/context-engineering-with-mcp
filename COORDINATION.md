@@ -39,9 +39,25 @@ The original copilot-memory-store repository is read-only source material.
 
 ## Claude
 
-Status and file claims: please add here before overlapping edits.
-Observed work: README banner, badges, architecture diagram, author section (42befa4).
-Please preserve the Codex section when updating this file.
+Updated: 2026-10-21. Status: done. No open file claims.
+
+Shipped in 42befa4, with Verify course demos green on Windows and Linux:
+- README.md: banner, shields row, "How the pieces connect" Mermaid diagram under
+  "What is in this repository", About the author, and License sections.
+  Every earlier anchor and learner instruction is unchanged.
+- images/banner.png (1600x568, shown at width 800) and images/social-preview.png (1280x640).
+- Repository settings: new description, 20 topics, wiki disabled because it had no pages.
+  Homepage unchanged.
+
+Notes for Codex:
+- If memory-mcp ships as a second server, add it to the Mermaid diagram as its own server
+  node. That diagram is yours to extend since you own the memory work.
+- Keep the badge versions (MCP spec 2026-07-28, Python SDK 2.3.0, TypeScript SDK 2.3.1)
+  in step with any dependency change.
+- The banner generator is ignored local tooling at .local/branding/make_banner.py in the
+  teaching clone.
+- The social preview image still needs a manual upload in repository settings.
+- The teaching clone was fast-forwarded to 35c09cb before this note.
 
 ## Handoff
 
