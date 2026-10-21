@@ -28,16 +28,18 @@ Private operational details and delivery materials are retained locally.
 
 ## Review Queue
 
-- [NEEDS REVIEW - CLAUDE] fbbad29: R4/R5/R7 memory fixes, memory R6 setting, docs.
-- [NEEDS REVIEW - CLAUDE] Private review findings R9 and R10 summarized below.
+- [REJECTED - NEEDS FIX] fbbad29: R4/R5/R7 verified [DONE]; new R11 (Before class) and R12 (Later).
+- [IN PROGRESS - CLAUDE] fbbad29 docs review (README.md, TUTORIALS.md, docs/, memory/README.md).
+- [IN PROGRESS - CLAUDE] Codex findings R9 and R10 against Claude's private scripts, accepted.
 - [NEEDS REVIEW - CODEX] typescript/.npmrc compiler setting from Claude.
 
 ## Task queue
 
 | Priority | Task | Status | Public file boundary |
 |---|---|---|---|
-| P1 | Memory server and resilience fixes | [NEEDS REVIEW - CLAUDE] | memory-mcp/** |
-| P2 | Two-segment learner narrative | [NEEDS REVIEW - CLAUDE] | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md |
+| P1 | Memory server and resilience fixes | [REJECTED - NEEDS FIX] R11, R12 | memory-mcp/** |
+| P1 | R9/R10: merge failure check and safe-block classification | [IN PROGRESS - CLAUDE] | ignored instructor scripts and cheat sheet |
+| P2 | Two-segment learner narrative | [IN PROGRESS - CLAUDE] review | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md |
 | P2 | Deterministic generated JSON (R8) | [IN PROGRESS - CODEX] | clients/New-ClientConfigs.ps1, verify.yml |
 | P2 | Compiler installation under production environment (R6) | [NEEDS REVIEW - CODEX] | typescript/.npmrc |
 | P1 | Final verified-commit agreement | [TODO] | Coordination only |
@@ -67,27 +69,38 @@ Private operational details and delivery materials are retained locally.
 ## Review findings and resolutions
 
 - R1-R3 [DONE] Generator fixes verified in c81657d.
-- R4 [NEEDS REVIEW - CLAUDE] Continuous Windows readers prevented replacement.
+- R4 [DONE] Claude verified on Windows: 4x25 writes with 3 looping readers, 100/100 ok, 0 lost.
+  Continuous Windows readers prevented replacement.
   fbbad29 serializes readers and writers and retries transient replacement errors.
   Retry alone reproduced the failure. Regression: four writers each save 25 records
   while three readers loop; all 101 records including the seed remain valid.
   loadStore is now async; independent stress scripts must await it.
-- R5 [NEEDS REVIEW - CLAUDE] fbbad29 recovers locks older than five seconds only
+- R5 [DONE] Claude verified: dead-PID lock 60 s old recovered in 6 ms; fresh dead-PID and
+  live-owner locks refused. fbbad29 recovers locks older than five seconds only
   when a numeric owner PID is confirmed absent. Recovery is serialized to prevent
   two contenders from deleting a new owner's lock. Live/recent/malformed locks stay.
 - R6 [NEEDS REVIEW - CODEX] Both packages require include=dev so production-mode npm
   installs still use the pinned compiler. Memory setting is in fbbad29; Claude
   supplied the TypeScript starter setting.
-- R7 [NEEDS REVIEW - CLAUDE] Full demo now defaults to isolated temporary memory.
+- R7 [DONE] Claude verified. Full demo now defaults to isolated temporary memory.
   Split phases require the same explicit absolute --memory-path. Request output
   remains available after the temporary store is removed.
 - R8 [IN PROGRESS - CODEX] Order generated JSON deterministically across processes.
-- R9 [REJECTED - NEEDS FIX] Before class: the peer-reviewed merge routine must check
+- R9 [IN PROGRESS - CLAUDE] Accepted. Before class: the peer-reviewed merge routine must check
   generator failure before reading prior generated files. Otherwise stale output
   may be consumed after a failed generator. Claude owns the private implementation.
-- R10 [REJECTED - NEEDS FIX] Before class: a verification block labeled safe invokes
+- R10 [IN PROGRESS - CLAUDE] Accepted. Before class: a verification block labeled safe invokes
   a mutating merge. Use its preview mode for automatic verification, or classify
   the mutating block as skipped. Claude owns the private implementation.
+- R11 [REJECTED - NEEDS FIX] Before class (Claude finding on fbbad29). memory-mcp npm test fails
+  intermittently on Windows: EPERM at acquireLock from loadStore via test/io-worker.mjs. openSync
+  'wx' returns EPERM, not EEXIST, while a prior owner's lock unlink is pending deletion, and
+  acquireLock retries only EEXIST. Hosted CI passed by luck. Attack script: 2 reader EPERMs in
+  about 3,800 reads. Fix: treat EPERM, EACCES, and EBUSY like EEXIST in the bounded retry loop.
+- R12 [REJECTED - NEEDS FIX] Later (Claude finding). The .lock.recovery guard has no staleness
+  check. A guard left by a crash blocks every later recovery, so a dead lock needs a manual fix.
+  Measured: leftover guard plus 60 s dead-PID lock, write refused after 2.5 s. Fix: unlink a
+  guard older than 10 s and retry.
 
 ## Codex
 
