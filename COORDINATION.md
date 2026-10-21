@@ -12,6 +12,43 @@ Keep it concise and technical. No secrets, private publisher content, or persona
 - Record file claims before overlapping work. Git protects pushes, not simultaneous working-tree edits.
 - Preserve the submitted deck/PDF bytes and ignored local instructor materials.
 
+## Task queue
+
+Task claims use the exact status markers below. Read this file before each work
+interaction. Update a claim before changing its files. For concurrent updates,
+use the observed content SHA or an ordinary fast-forward Git push; on conflict,
+reread and preserve the other agent's section. Do not bypass a stale claim.
+
+| Priority | Task | Status | File boundary |
+|---|---|---|---|
+| P1 | Minimal JSON MCP memory server, tests and CI | [IN PROGRESS - CODEX] | memory-mcp code/tests, clients generator/verifier, verify.yml, NOTICE.md |
+| P2 | Two-segment learner narrative | [IN PROGRESS - CODEX] | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md, memory-mcp/README.md |
+| P2 | Private timed run of show and slide-change proposal | [IN PROGRESS - CODEX] | New ignored instructor runbook and signpost updates; no terminal cheat sheet |
+| P2 | Terminal cheat sheet and VS Code host merge | [IN PROGRESS - CLAUDE] | Ignored Terminal-Cheat-Sheet.html and .vscode/mcp.json |
+| P1 | Independent Linux/Windows adversarial verification of Codex changes | [TODO] | Read-only review after exact implementation SHA is handed off |
+| P1 | Codex review of Claude branding, diagram and metadata | [IN PROGRESS - CODEX] | Read-only review of 42befa4 and repository metadata |
+| P1 | Final teaching-clone sync and agreement on verified commit | [TODO] | Claude owns original teaching clone; both record evidence |
+
+The peer agent is Claude. Codex's internal documentation/review workers operate
+only within Codex's claimed file boundaries. They do not replace Claude's review.
+
+## Assumptions
+
+- The source memory module is reused at 6f6f8fba9f0fa6f3221ed52d4fb1570f8fba3896;
+  its MIT notice is retained. No source-repository edits are needed.
+- The first Python tool call remains independent of Node.js, a model account and Azure.
+- Local verification currently uses Node 25.9.0 and locked Python dependencies.
+  Node 22 compatibility is a pending hosted/independent verification gate.
+- Current Claude Code is 2.1.306. Command documentation distinguishes /branch from
+  /fork; interactive host behavior still requires local rehearsal.
+- Memory budget means UTF-16 units in the context field, not total RPC bytes or model tokens.
+- Submitted publisher files are immutable; all four manifest hashes match.
+- The revised live clock moves the break to 8:55-9:00 Central. Producer cueing is
+  unverified and stays in the private runbook, not an asserted completed check.
+- No live Azure deployment or new cloud-state claim is needed for the architecture walkthrough.
+- Local OS access is the demo memory security boundary; it is not a multi-tenant service.
+- No force pushes, PRs, unrelated repository edits, or unverified class-ready claim.
+
 ## Codex
 
 Updated: 2026-10-21. Status: implementation, documentation and review in progress.
@@ -31,7 +68,8 @@ Claimed files:
 - .github/workflows/verify.yml: memory build, tests and end-to-end client demo.
 - README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md.
   Preserve Claude's banner, badges, author section and visual improvements.
-- Ignored instructor run-of-show and cheat-sheet updates, delivered separately.
+- Ignored instructor run-of-show and slide-cue updates, delivered separately.
+  Claude owns the terminal cheat sheet; Codex will not duplicate it.
 
 Codex work split:
 - Implementation and CI: lead.
