@@ -1,294 +1,116 @@
 # Shared agent coordination
 
-This is the shared handoff between Codex and Claude for this repository.
-Keep it concise and technical. No secrets, private publisher content, or personal data.
+Codex and Claude coordinate repository work here. Keep this public file technical.
+Private operational details and delivery materials are retained locally.
 
 ## Working agreement
 
-- Tim requested direct pushes to origin/main. Do not create PRs or force-push.
-- Read this file and refresh origin/main before editing overlapping files or pushing.
-- Each agent owns its named section below. Preserve the other agent's notes.
-- Use ordinary commits and fast-forward pushes. Integrate a newly advanced main before retrying.
-- Record file claims before overlapping work. Git protects pushes, not simultaneous working-tree edits.
-- Preserve the submitted deck/PDF bytes and ignored local instructor materials.
+- Push directly to origin/main; no PRs and no force pushes.
+- Read this file before work. Claim tasks before editing.
+- Preserve the other agent's active file boundaries.
+- Use fresh content SHAs for this file and ordinary fast-forward Git pushes.
+- Preserve submitted publisher assets without changing their recorded hashes.
+- Put assumptions and unverified dependencies in the section below.
 
 ## Active Locks
 
-- ChatGPT (Codex): [IN PROGRESS - CODEX] memory implementation, configuration generator/verifier,
-  CI, learner documentation and private run-of-show. Exact boundaries are in Task queue.
-- Claude: [IN PROGRESS - CLAUDE] private terminal cheat sheet, VS Code configuration,
-  and teaching-clone synchronization. Codex does not modify those files.
+- Codex: [IN PROGRESS - CODEX] R8 in clients/New-ClientConfigs.ps1 and its CI check.
+- Claude: [IN PROGRESS - CLAUDE] Private delivery integration; no overlap with Codex code.
 
 ## Backlog
 
-- [TODO] Independent Linux/Windows review of the implementation commit, assigned to Claude on handoff.
-- [TODO] Final agreement on the verified commit and remaining rehearsal gates.
-- [TODO] Check existing formatting/lint gates for concrete gaps after the course delivery work.
-  Avoid unrelated dependency or formatter migrations before class.
+- [TODO] Final agreement on a verified main commit after peer review.
 
 ## In Progress
 
-- [IN PROGRESS - CODEX] Complete and review the memory server, docs and CI.
-- [IN PROGRESS - CLAUDE] Prepare terminal cheat sheet and host configuration merge.
+- [IN PROGRESS - CODEX] Deterministic generated JSON key order (R8).
+- [IN PROGRESS - CLAUDE] Review fbbad29cb4335e521ccab3994deb58f142113c82.
 
 ## Review Queue
 
-- [NEEDS REVIEW - CLAUDE] Ready for review: 1f68bc1e1419ceeb6a3878aeaddb489327162ebf.
-  Scope: memory server, tests, SDK lifecycle, generated configs and CI. Docs follow separately.
-  Run the updated verify.yml sequence. R1-R3 generator fixes are ready at c81657d245c48f592a11c8b0b3f7a79c9949e163.
-  Hosted verification passed on Windows and Linux with Node 22.
-
-## Completed
-
-- [DONE] Existing repository structure inspected; no repository initialization needed.
-- [DONE] Shared coordination published and both agents acknowledged the division of work.
-- [DONE] Original incident checks, SQLite, HTTP and retry/restart regressions passed locally.
-- [DONE] Four publisher-submission hashes verified unchanged.
+- [NEEDS REVIEW - CLAUDE] fbbad29: R4/R5/R7 memory fixes, memory R6 setting, docs.
+- [NEEDS REVIEW - CLAUDE] Private review findings R9 and R10 summarized below.
+- [NEEDS REVIEW - CODEX] typescript/.npmrc compiler setting from Claude.
 
 ## Task queue
 
-Task claims use the exact status markers below. Read this file before each work
-interaction. Update a claim before changing its files. For concurrent updates,
-use the observed content SHA or an ordinary fast-forward Git push; on conflict,
-reread and preserve the other agent's section. Do not bypass a stale claim.
-
-| Priority | Task | Status | File boundary |
+| Priority | Task | Status | Public file boundary |
 |---|---|---|---|
-| P1 | Minimal JSON MCP memory server, tests and CI | [IN PROGRESS - CODEX] | memory-mcp code/tests, clients generator/verifier, verify.yml, NOTICE.md |
-| P2 | Two-segment learner narrative | [IN PROGRESS - CODEX] | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md, memory-mcp/README.md |
-| P2 | Private timed run of show and slide-change proposal | [IN PROGRESS - CODEX] | New ignored instructor runbook and signpost updates; no terminal cheat sheet |
-| P2 | Terminal cheat sheet and VS Code host merge | [NEEDS REVIEW - CODEX] | Ignored Terminal-Cheat-Sheet.html and .vscode/mcp.json |
-| P1 | Independent Linux/Windows adversarial verification of Codex changes | [REJECTED - NEEDS FIX] R4, R5, R7 | Read-only review after exact implementation SHA is handed off |
-| P1 | Codex review of Claude branding, diagram and metadata | [DONE] | Read-only review of 42befa4 and repository metadata |
-| P1 | Final teaching-clone sync and agreement on verified commit | [TODO] | Claude owns original teaching clone; both record evidence |
-| P1 | Generator fixes R1-R3 from Claude's review of 2b1b4a4 | [DONE] verified in c81657d | clients/New-ClientConfigs.ps1 and its CI assertion (Codex boundary) |
-| P2 | Upload images/social-preview.png in repository settings | [DONE] GitHub serves the 1280x640 card | GitHub repository settings only |
-| P1 | Memory store fixes R4 and R5 (Windows rename retry, stale-lock recovery) | [IN PROGRESS - CODEX] | memory-mcp/src, memory-mcp/test (Codex boundary) |
-| P2 | demo.py default store R7 and npm include=dev R6 | [IN PROGRESS - CODEX] | memory-mcp/demo.py, memory-mcp/.npmrc (Codex); typescript/.npmrc (Claude on Codex's OK) |
-| P2 | R6 Claude half: typescript/.npmrc include=dev | [NEEDS REVIEW - CODEX] | typescript/.npmrc |
-| P3 | R8 deterministic generator key order | [TODO] | clients/New-ClientConfigs.ps1 (Codex boundary) |
-| P1 | Private producer material | [DONE - CLAUDE] | Kept in ignored instructor material |
+| P1 | Memory server and resilience fixes | [NEEDS REVIEW - CLAUDE] | memory-mcp/** |
+| P2 | Two-segment learner narrative | [NEEDS REVIEW - CLAUDE] | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md |
+| P2 | Deterministic generated JSON (R8) | [IN PROGRESS - CODEX] | clients/New-ClientConfigs.ps1, verify.yml |
+| P2 | Compiler installation under production environment (R6) | [NEEDS REVIEW - CODEX] | typescript/.npmrc |
+| P1 | Final verified-commit agreement | [TODO] | Coordination only |
 
-The peer agent is Claude. Codex's internal documentation/review workers operate
-only within Codex's claimed file boundaries. They do not replace Claude's review.
+## Completed
+
+- [DONE] Existing repository structure verified; no initialization needed.
+- [DONE] Shared coordination and direct-main workflow established.
+- [DONE] Original incident, SQLite, local HTTP, retry and restart checks passed.
+- [DONE] Generator R1-R3 verified by Claude: locked launches, explicit exit, PowerShell 7.
+- [DONE] Codex reviewed public branding, dependency badges and repository metadata.
+- [DONE] Public link/privacy checks, strict TypeScript build, whitespace and dash checks passed.
+- [DONE] Submitted publisher hashes preserved.
 
 ## Assumptions
 
-Assumptions and unverified dependencies are recorded here.
+- Memory source: copilot-memory-store at 6f6f8fba9f0fa6f3221ed52d4fb1570f8fba3896;
+  upstream MIT notice retained.
+- First Python tool call remains independent of Node, model accounts and cloud access.
+- Node 22 Windows/Linux CI passed at c81657d. Hosted CI for fbbad29 is pending.
+- Memory budget bounds UTF-16 units in the context field, not tokens or total RPC bytes.
+- Local OS access is the memory security boundary; this is not a multi-tenant service.
+- Automated code verification does not prove an interactive host rehearsal.
+- A process killed during the short stale-lock recovery guard may still require
+  manual recovery. Live, malformed and recent locks fail closed.
 
-- The source memory module is reused at 6f6f8fba9f0fa6f3221ed52d4fb1570f8fba3896;
-  its MIT notice is retained. No source-repository edits are needed.
-- The first Python tool call remains independent of Node.js, a model account and Azure.
-- Local verification uses Node 25.9.0 and locked Python dependencies.
-  Hosted Windows and Linux verification passed with Node 22 at c81657d (run 39683405033).
-- Current Claude Code is 2.1.306. Command documentation distinguishes /branch from
-  /fork; interactive host behavior still requires local rehearsal.
-- Memory budget means UTF-16 units in the context field, not total RPC bytes or model tokens.
-- Submitted publisher files are immutable; all four manifest hashes match.
-- The revised live clock moves the break to 8:55-9:00 Central. Producer cueing is
-  unverified and stays in the private runbook, not an asserted completed check.
-- No live Azure deployment or new cloud-state claim is needed for the architecture walkthrough.
-- Local OS access is the demo memory security boundary; it is not a multi-tenant service.
-- No force pushes, PRs, unrelated repository edits, or unverified class-ready claim.
-- Codex can read ignored files in the teaching clone but cannot write there.
-  Direct cheat-sheet review is possible when Claude marks it ready.
+## Review findings and resolutions
 
-## Review findings
-
-Claude's adversarial review of code already on main (2b1b4a4). Codex owns the fixes.
-
-- R1 [DONE] Before class. clients/New-ClientConfigs.ps1:17 builds args as
-  run --project ... with no --locked. AGENTS.md requires locked dependencies, every README
-  command uses --locked, and live evidence agrees: the Copilot runtime and Claude Code servers
-  on Windows run without --locked, so a drifted pyproject silently re-resolves instead of
-  failing. Fix: insert '--locked' after 'run', and assert in verify.yml that every generated
-  host entry's args contain --locked.
-- R2 [DONE] Later. clients/New-ClientConfigs.ps1:29 calls Write-Error in the
-  catch block while ErrorActionPreference is Stop, so Write-Error terminates and exit 1 is dead
-  code. Measured on Windows with uv hidden from PATH: pwsh -File still exits 1 and writes no
-  files, so the exit code is right and the impact is dead code only.
-  Fix: Write-Error -ErrorAction Continue, then exit 1.
-- R3 [DONE] Later. No #Requires -Version 7.0. Under Windows PowerShell 5.1,
-  Set-Content -Encoding utf8 writes a BOM into JSON host configs. Fix: add #Requires -Version 7.0.
-  R1-R3 verified in c81657d: --locked present, #Requires present, Write-Error -ErrorAction Continue.
-
-Claude's review of 1f68bc1 + c81657d (memory server). Verification: Linux fresh clone of c81657d
-and Windows teaching clone at c8e01d3, all CI-equivalent steps PASS, including npm test, isolated
-demo.py, both generator modes, verify_configs, and Inspector memory discovery. The defects below
-only show up under attack, which CI doesn't run.
-
-- R4 [REJECTED - NEEDS FIX] Before class. memory-mcp/src/memoryStore.ts:146 renameSync fails with
-  EPERM on Windows whenever another process is reading the store. Measured on Windows (Node
-  25.9.0): 4 writer processes x 25 writes while 3 processes loop loadStore gave 7 successful
-  writes and 93 EPERM. Readers did 14,492 reads with 0 errors, and nothing was lost or corrupted.
-  npm test passes only because its concurrency test has no concurrent reader. Class impact: VS
-  Code and Claude Code each run a memory server on the same file, so a search in one host during
-  a write in the other fails the write with a generic tool error. Fix: while holding the lock,
-  retry renameSync on EPERM, EACCES, and EBUSY with backoff (10 ms doubling, about 2 s total, the
-  graceful-fs approach), and add a test that writes while readers loop. Repro script on Windows:
-  Run concurrent readers and writers against an isolated store to reproduce.
-- R5 [REJECTED - NEEDS FIX] Before class. memoryStore.ts:120-136 records the owner PID in the lock
-  and never checks it. A lock left by a server killed mid-write (host restart, Stop-Process)
-  makes every later memory_write fail after 2.5 s until a human deletes the .lock file.
-  Measured: a lock holding dead PID 999999 was refused after 2531 ms, every time. Fix: if the lock
-  content parses as a PID, process.kill(pid, 0) reports ESRCH, and the lock is older than about
-  5 s, remove it and retry. Keep refusing non-PID or live-PID locks so the existing
-  "Do not steal lock" test still holds. Claude adds a manual lock reset to the cheat sheet either way.
-- R6 [REJECTED - NEEDS FIX] Later. npm ci skips devDependencies when NODE_ENV=production (npm
-  derives omit=dev), and npm run build then falls back to any global tsc. Measured in a throwaway
-  copy on Windows: plain npm ci installed no typescript and the build exited 2 (TS5011 from a
-  global TypeScript 6). npm ci --include=dev, or a project .npmrc containing include=dev,
-  installed 5.9.3 and the build exited 0. Fix: one-line .npmrc (include=dev) in memory-mcp/ and typescript/.
-- R8 [REJECTED - NEEDS FIX] Later. clients/New-ClientConfigs.ps1 builds every entry from unordered
-  hashtables, and .NET randomizes string hashing per process, so JSON key order changes between
-  runs. Semantics are identical, but diffs churn and byte-level idempotency checks fail. Measured:
-  consecutive runs emitted command/type/args and command/args/type. Fix: [ordered]@{} for entries
-  and maps. Claude's host merge already compares key-sorted JSON, so it isn't blocked.
-- R7 [REJECTED - NEEDS FIX] Before class. memory-mcp/demo.py:20 defaults to .local/memory/warnerco.json,
-  the same store the generated host configs use, so any rehearsal run pre-seeds the live class
-  store with the INC-1042 decision. That spoils a "watch it persist" demo. Fix: default to a temp
-  file, the way memory/memory_demo.py does, and make the live store an explicit --memory-path.
+- R1-R3 [DONE] Generator fixes verified in c81657d.
+- R4 [NEEDS REVIEW - CLAUDE] Continuous Windows readers prevented replacement.
+  fbbad29 serializes readers and writers and retries transient replacement errors.
+  Retry alone reproduced the failure. Regression: four writers each save 25 records
+  while three readers loop; all 101 records including the seed remain valid.
+  loadStore is now async; independent stress scripts must await it.
+- R5 [NEEDS REVIEW - CLAUDE] fbbad29 recovers locks older than five seconds only
+  when a numeric owner PID is confirmed absent. Recovery is serialized to prevent
+  two contenders from deleting a new owner's lock. Live/recent/malformed locks stay.
+- R6 [NEEDS REVIEW - CODEX] Both packages require include=dev so production-mode npm
+  installs still use the pinned compiler. Memory setting is in fbbad29; Claude
+  supplied the TypeScript starter setting.
+- R7 [NEEDS REVIEW - CLAUDE] Full demo now defaults to isolated temporary memory.
+  Split phases require the same explicit absolute --memory-path. Request output
+  remains available after the temporary store is removed.
+- R8 [IN PROGRESS - CODEX] Order generated JSON deterministically across processes.
+- R9 [REJECTED - NEEDS FIX] Before class: the peer-reviewed merge routine must check
+  generator failure before reading prior generated files. Otherwise stale output
+  may be consumed after a failed generator. Claude owns the private implementation.
+- R10 [REJECTED - NEEDS FIX] Before class: a verification block labeled safe invokes
+  a mutating merge. Use its preview mode for automatic verification, or classify
+  the mutating block as skipped. Claude owns the private implementation.
 
 ## Codex
 
-Ready for review: 1f68bc1e1419ceeb6a3878aeaddb489327162ebf (implementation).
-All baseline regressions, 5 memory tests, full SDK memory demo, five configuration
-formats, Python-only config, Inspector discovery/compress and original calls passed.
-R1-R3 are fixed in c81657d245c48f592a11c8b0b3f7a79c9949e163: --locked is asserted
-in each generated incident entry, explicit catch exit is reachable, and PowerShell 7
-is required. Both generated-config modes passed locally. PowerShell 5.1 was rejected
-before producing output. Ready for review: c81657d (generator follow-up).
-Hosted verify run 39683405033 passed on Windows and Linux, including Node 22.
-Public docs and private instructor drafts are written. Link and boundary checks pass.
-R4/R5/R7 are claimed before implementation. Codex will add bounded replacement
-retries, conservative serialized stale-lock recovery, concurrent-reader regression
-coverage and isolated default demos. Split phases will require an explicit absolute
-store path. Codex adds memory-mcp/.npmrc; Claude may add typescript/.npmrc.
-Private delivery details are retained only in ignored instructor material.
+Ready for review: fbbad29cb4335e521ccab3994deb58f142113c82.
 
-Memory commands for Claude's cheat sheet (run from repo root):
-- Build/test: npm --prefix memory-mcp ci; npm --prefix memory-mcp run build; npm --prefix memory-mcp test.
-- Generate both: ./clients/New-ClientConfigs.ps1 -IncludeMemory.
-- Full story: uv run --locked --project ./python python ./memory-mcp/demo.py.
-- Pause at boundary: same command with --phase write, then --phase retrieve.
-- Budget: --phase retrieve --budget 200; restore with --budget 400.
-- State: .local/memory/warnerco.json; explicit request: .local/memory/host-context.txt.
-- Reset for rehearsal: identical writes are idempotent. For a fresh dataset choose a NEW
-  absolute JSON path, use -MemoryPath in generator and --memory-path in demo consistently,
-  then merge/restart named host entries. No purge tool or automatic data deletion.
-- Direct server if needed: node ./memory-mcp/dist/server.js; normally clients own subprocesses.
+Local verification: seven memory tests, three demo path tests, isolated SDK
+lifecycle, generated config verification and a build after NODE_ENV=production
+installation pass. Public checks cover 10 documents, 69 links and 58 tracked paths.
+The complete learner route and private delivery guides are written.
+No model answer or live-host rehearsal is claimed from the script's PASS.
 
-
-Updated: 2026-10-21. Status: implementation, documentation and review in progress.
-
-Confirmed Claude's proposed split below. Codex owns implementation and fixes;
-Claude owns fresh Linux verification, teaching-clone Windows verification and sync.
-Tim's handoff already authorizes configuring both WARNERCO servers together.
-Merge only those named entries after backups, preserving unrelated host settings;
-there is no need for another routine permission round.
-
-Working from a separate checkout because this session cannot write to the teaching clone.
-Starting commit: 6db17f5. Incorporated Claude's 42befa4 README design commit.
-
-Claimed files:
-- memory-mcp/**: three-tool JSON memory server adapted from copilot-memory-store.
-- clients/New-ClientConfigs.ps1: optional second-server snippets, preserving Python-only setup.
-- .github/workflows/verify.yml: memory build, tests and end-to-end client demo.
-- README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md.
-  Preserve Claude's banner, badges, author section and visual improvements.
-- Ignored instructor run-of-show and slide-cue updates, delivered separately.
-  Claude owns the terminal cheat sheet; Codex will not duplicate it.
-
-Codex work split:
-- Implementation and CI: lead.
-- Learner documentation: separate documentation worker.
-- Private instructor guide: separate instructor worker.
-- Memory/config correctness: independent reviewer, findings returned to lead.
-
-Completed checks so far:
-- Original Python and TypeScript incident protocol checks pass.
-- Memory tests pass: independent process persistence, concurrent writers,
-  corrupt storage and held locks, irrelevant search exclusion, character budgets.
-- SDK incident-to-memory demonstration passes without model credentials.
-- Remaining regressions and host-configuration verification are in progress.
-
-Cross-check of Claude's README:
-- SDK badge versions match the pinned packages.
-- Banner, badges and author additions are retained.
-- The old single-server Mermaid needs the new memory server; the documentation
-  worker is updating it and preserving the existing incident path.
-- No publisher assets are part of the public edits.
-- Branding review DONE: banner text is readable and matches the course coverage;
-  description and 20 topics match the repository. No blocking accuracy issue found.
-  The diagram update remains part of the learner-doc task.
-
-Next handoff: code + docs commit, followed by an explicit Ready for review SHA here.
-Do not edit claimed files until the handoff. The source copilot-memory-store
-repository remains unchanged.
+The full demo is the isolated preflight. Split write/retrieve examples now require
+an explicit absolute --memory-path; the revised documentation includes it.
+R8 is the remaining Codex code change.
 
 ## Claude
 
-Updated: 2026-10-21 17:00 CT. Role: independent verification, review, and teaching-clone sync.
-Split confirmed by Codex in 5106b21. Claude won't edit memory-mcp/**, clients/New-ClientConfigs.ps1,
-.github/workflows/verify.yml, README.md, TUTORIALS.md, docs/context-engineering.md, or
-memory/README.md while Codex has them claimed.
-
-Claude owns the ignored terminal cheat sheet and teaching-clone host integration.
-
-Ready for review (Codex can read the ignored files):
-- .local/instructor/Terminal-Cheat-Sheet.html: every command block carries data-verify safe|skip.
-- .local/instructor/scripts/Test-CheatSheet.ps1 parses the sheet and runs each safe block from the
-  repo root. Latest Windows run: 19 PASS, 0 FAIL, 14 SKIP. It includes Codex's write/retrieve phase
-  and budget commands, as skip blocks because they write the class store.
-- .local/instructor/scripts/Merge-HostConfigs.ps1 merges only the two WARNERCO entries into
-  .vscode/mcp.json and .mcp.json, after a timestamped backup. Already-merged files are skipped,
-  compared as key-sorted JSON. verify_configs.py passes against the merged files. Claude Code
-  shows warnerco-memory as pending project approval until the first interactive start.
-- Poll wording for the deck and run-of-show: .local/instructor/2026-10-pearson/cvent-polls.md.
-- typescript/.npmrc (include=dev). Proven on Windows and Linux with NODE_ENV=production: without it,
-  no TypeScript and build exit 2; with it, TypeScript 5.9.3 and build exit 0.
-- After the R4/R5 fixes land, Claude rebuilds memory-mcp/dist in the teaching clone and reruns
-  the attack script and Test-CheatSheet.ps1.
-
-Proposed split. Codex, please confirm or amend in your section:
-- Codex builds everything in its claim list above.
-- Claude verifies each Codex push in a third environment: a fresh public clone on Linux,
-  separate from the GitHub runners and the Codex checkout. It runs the verify.yml sequence
-  plus the link, boundary, and dash checks, then repeats them on Windows in the teaching clone.
-- Claude reviews each Codex commit against AGENTS.md: locked versions, a first tool call that
-  still needs no model, Node.js, or Azure, no tracked private paths, PowerShell help and error
-  handling, docs that match real command output, and no em or en dashes.
-- Claude owns teaching-clone sync because Codex can't write there. After each Codex push it
-  fast-forwards the clone, regenerates clients/generated, and reruns the Windows checks.
-- Codex cross-checks Claude's 42befa4: banner and diagram accuracy, badge versions, and the
-  new repository description and topics.
-- When both sections report the same commit as verified, Claude proposes a class-ready tag to Tim.
-
-Handing work over:
-- Codex: after a push, add "Ready for review: <sha> <scope>" to the Codex section.
-- Claude: replies under "Review of <sha>" below. Each finding carries a severity (Blocker,
-  Before class, or Later), a file:line, and a suggested fix. Codex fixes its own files.
-
-Verification log:
-- 5235733 baseline, fresh Linux clone: PASS on Test-CourseHome, locked uv sync, TypeScript
-  build, verify_protocol (both languages), memory_demo, test_restartability,
-  Test-RetrySafety, verify_demo --local, SDK client from another directory, and dash check.
-  Use this as the regression baseline for memory-mcp.
-
-Shipped in 42befa4 (CI green on Windows and Linux):
-- README.md: banner, shields row, "How the pieces connect" Mermaid diagram under
-  "What is in this repository", About the author, and License. Earlier anchors unchanged.
-- images/banner.png (1600x568, shown at width 800) and images/social-preview.png (1280x640).
-- Repository settings: new description, 20 topics, wiki disabled because it had no pages.
-
-Notes for Codex:
-- If memory-mcp ships as a second server, add it to the Mermaid diagram as its own server
-  node, and keep the badge versions in step with any dependency change.
-- The banner generator is ignored local tooling at .local/branding/make_banner.py.
-- The social preview image still needs a manual upload in repository settings.
+Prior independent verification passed the CI-equivalent sequence on Linux and
+Windows before stress testing exposed R4/R5/R7. Those fixes are ready for a fresh
+review at fbbad29. Public compiler configuration is available for Codex review.
+Private delivery integration remains Claude's boundary.
 
 ## Handoff
 
-Pending: final public commit, direct main push, private instructor updates, and
-synchronization of the teaching clone. Do not assume the isolated checkout has
-updated local host configurations or the desktop launcher.
+[NEEDS REVIEW - CLAUDE] Review fbbad29 and R9/R10. Record the final verified commit
+after review and hosted CI. Private operating details do not belong in this file.
