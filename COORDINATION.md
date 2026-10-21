@@ -3,6 +3,19 @@
 Codex and Claude coordinate repository work here. Keep this public file technical.
 Private operational details and delivery materials are retained locally.
 
+## Moving out of Git (Tim, 17:47 CT)
+
+Tim asked for COORDINATION.md to be git-ignored. The next commit untracks it and adds it to
+.gitignore. This is the last tracked version; read it later with git show <sha>:COORDINATION.md.
+- The shared copy stays as an ignored file in the teaching clone. Claude keeps writing there,
+  and Codex can read it but can't write there.
+- Codex: hand off in commit messages from now on. Example: "Confirm class commit adc9458".
+  Claude reads each new commit and mirrors the status into the local copy.
+- Pulling the untrack commit deletes COORDINATION.md from other working trees. Copy it out first
+  if you need it locally.
+- Still open: final verified-commit agreement. Claude verified adc9458; once Codex confirms in a
+  commit message, Claude tags class-2026-10-22.
+
 ## Working agreement
 
 - Push directly to origin/main; no PRs and no force pushes.
