@@ -58,11 +58,14 @@ reread and preserve the other agent's section. Do not bypass a stale claim.
 | P2 | Two-segment learner narrative | [IN PROGRESS - CODEX] | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md, memory-mcp/README.md |
 | P2 | Private timed run of show and slide-change proposal | [IN PROGRESS - CODEX] | New ignored instructor runbook and signpost updates; no terminal cheat sheet |
 | P2 | Terminal cheat sheet and VS Code host merge | [IN PROGRESS - CLAUDE] | Ignored Terminal-Cheat-Sheet.html and .vscode/mcp.json |
-| P1 | Independent Linux/Windows adversarial verification of Codex changes | [NEEDS REVIEW - CLAUDE] | Read-only review after exact implementation SHA is handed off |
+| P1 | Independent Linux/Windows adversarial verification of Codex changes | [REJECTED - NEEDS FIX] R4, R5, R7 | Read-only review after exact implementation SHA is handed off |
 | P1 | Codex review of Claude branding, diagram and metadata | [DONE] | Read-only review of 42befa4 and repository metadata |
 | P1 | Final teaching-clone sync and agreement on verified commit | [TODO] | Claude owns original teaching clone; both record evidence |
-| P1 | Generator fixes R1-R3 from Claude's review of 2b1b4a4 | [NEEDS REVIEW - CLAUDE] | clients/New-ClientConfigs.ps1 and its CI assertion (Codex boundary) |
-| P2 | Upload images/social-preview.png in repository settings | [IN PROGRESS - CLAUDE] | GitHub repository settings only |
+| P1 | Generator fixes R1-R3 from Claude's review of 2b1b4a4 | [DONE] verified in c81657d | clients/New-ClientConfigs.ps1 and its CI assertion (Codex boundary) |
+| P2 | Upload images/social-preview.png in repository settings | [DONE] GitHub serves the 1280x640 card | GitHub repository settings only |
+| P1 | Memory store fixes R4 and R5 (Windows rename retry, stale-lock recovery) | [TODO] | memory-mcp/src, memory-mcp/test (Codex boundary) |
+| P2 | demo.py default store R7 and npm include=dev R6 | [TODO] | memory-mcp/demo.py, memory-mcp/.npmrc (Codex); typescript/.npmrc (Claude on Codex's OK) |
+| P1 | Replace Cvent session polls 2+ with human, course-relevant questions (Tim, 17:07 CT) | [IN PROGRESS - CLAUDE] | Cvent producer UI in Tim's Chrome. Codex: hidden deck poll slides 2-7 and run-of-show poll cues must match the new wording; Claude posts final text here |
 
 The peer agent is Claude. Codex's internal documentation/review workers operate
 only within Codex's claimed file boundaries. They do not replace Claude's review.
@@ -91,6 +94,8 @@ Assumptions and unverified dependencies are recorded here.
   and Python 3.14 as the default python. CI uses Node 22 and current setup-uv.
 - Claude: at 21:58Z Tim's PC ran 5 warnerco-incidents servers (15 processes) owned by live
   hosts: Copilot runtime, VS Code twice, Claude Code twice. No orphans, so no leak.
+- Claude: NODE_ENV=production exists only in the Desktop Commander agent shell, not in Tim's
+  user or machine environment. Claude's Windows runs clear it first; Tim's terminals are unaffected.
 - Claude: Tim authorized both servers in the VS Code workspace (16:52 CT). Under his autonomy
   grant (16:56 CT) Claude also merges the project .mcp.json for Claude Code. Claude Desktop's
   user configuration stays out of scope because the run-of-show calls it a fallback only.
@@ -99,19 +104,52 @@ Assumptions and unverified dependencies are recorded here.
 
 Claude's adversarial review of code already on main (2b1b4a4). Codex owns the fixes.
 
-- R1 [REJECTED - NEEDS FIX] Before class. clients/New-ClientConfigs.ps1:17 builds args as
+- R1 [DONE] Before class. clients/New-ClientConfigs.ps1:17 builds args as
   run --project ... with no --locked. AGENTS.md requires locked dependencies, every README
   command uses --locked, and live evidence agrees: the Copilot runtime and Claude Code servers
   on Tim's PC run without --locked, so a drifted pyproject silently re-resolves instead of
   failing. Fix: insert '--locked' after 'run', and assert in verify.yml that every generated
   host entry's args contain --locked.
-- R2 [REJECTED - NEEDS FIX] Later. clients/New-ClientConfigs.ps1:29 calls Write-Error in the
+- R2 [DONE] Later. clients/New-ClientConfigs.ps1:29 calls Write-Error in the
   catch block while ErrorActionPreference is Stop, so Write-Error terminates and exit 1 is dead
   code. Measured on Windows with uv hidden from PATH: pwsh -File still exits 1 and writes no
   files, so the exit code is right and the impact is dead code only.
   Fix: Write-Error -ErrorAction Continue, then exit 1.
-- R3 [REJECTED - NEEDS FIX] Later. No #Requires -Version 7.0. Under Windows PowerShell 5.1,
+- R3 [DONE] Later. No #Requires -Version 7.0. Under Windows PowerShell 5.1,
   Set-Content -Encoding utf8 writes a BOM into JSON host configs. Fix: add #Requires -Version 7.0.
+  R1-R3 verified in c81657d: --locked present, #Requires present, Write-Error -ErrorAction Continue.
+
+Claude's review of 1f68bc1 + c81657d (memory server). Verification: Linux fresh clone of c81657d
+and Windows teaching clone at c8e01d3, all CI-equivalent steps PASS, including npm test, isolated
+demo.py, both generator modes, verify_configs, and Inspector memory discovery. The defects below
+only show up under attack, which CI doesn't run.
+
+- R4 [REJECTED - NEEDS FIX] Before class. memory-mcp/src/memoryStore.ts:146 renameSync fails with
+  EPERM on Windows whenever another process is reading the store. Measured on Tim's PC (Node
+  25.9.0): 4 writer processes x 25 writes while 3 processes loop loadStore gave 7 successful
+  writes and 93 EPERM. Readers did 14,492 reads with 0 errors, and nothing was lost or corrupted.
+  npm test passes only because its concurrency test has no concurrent reader. Class impact: VS
+  Code and Claude Code each run a memory server on the same file, so a search in one host during
+  a write in the other fails the write with a generic tool error. Fix: while holding the lock,
+  retry renameSync on EPERM, EACCES, and EBUSY with backoff (10 ms doubling, about 2 s total, the
+  graceful-fs approach), and add a test that writes while readers loop. Repro script on Tim's PC:
+  C:\Temp\memory-attack.mjs (node memory-attack.mjs <memory-mcp\dist>).
+- R5 [REJECTED - NEEDS FIX] Before class. memoryStore.ts:120-136 records the owner PID in the lock
+  and never checks it. A lock left by a server killed mid-write (host restart, Stop-Process)
+  makes every later memory_write fail after 2.5 s until a human deletes the .lock file.
+  Measured: a lock holding dead PID 999999 was refused after 2531 ms, every time. Fix: if the lock
+  content parses as a PID, process.kill(pid, 0) reports ESRCH, and the lock is older than about
+  5 s, remove it and retry. Keep refusing non-PID or live-PID locks so the existing
+  "Do not steal lock" test still holds. Claude adds a manual lock reset to the cheat sheet either way.
+- R6 [REJECTED - NEEDS FIX] Later. npm ci skips devDependencies when NODE_ENV=production (npm
+  derives omit=dev), and npm run build then falls back to any global tsc. Measured in a throwaway
+  copy on Tim's PC: plain npm ci installed no typescript and the build exited 2 (TS5011 from a
+  global TypeScript 6). npm ci --include=dev, or a project .npmrc containing include=dev,
+  installed 5.9.3 and the build exited 0. Fix: one-line .npmrc (include=dev) in memory-mcp/ and typescript/.
+- R7 [REJECTED - NEEDS FIX] Before class. memory-mcp/demo.py:20 defaults to .local/memory/warnerco.json,
+  the same store the generated host configs use, so any rehearsal run pre-seeds the live class
+  store with the INC-1042 decision. That spoils a "watch it persist" demo. Fix: default to a temp
+  file, the way memory/memory_demo.py does, and make the live store an explicit --memory-path.
 
 ## Codex
 
