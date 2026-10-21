@@ -11,6 +11,7 @@ Examples:
 """
 from __future__ import annotations
 import argparse
+from contextlib import closing
 import json
 from pathlib import Path
 import sqlite3
@@ -26,20 +27,24 @@ def connect(path: Path) -> sqlite3.Connection:
     """Initialize repeatably; primary keys prevent duplicate seed data on later runs."""
     path.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(path, timeout=10)
-    db.row_factory = sqlite3.Row
-    db.executescript("""
-    CREATE TABLE IF NOT EXISTS working(scope TEXT NOT NULL, topic TEXT NOT NULL, note TEXT NOT NULL, PRIMARY KEY(scope,topic));
-    CREATE TABLE IF NOT EXISTS episodic(id INTEGER PRIMARY KEY, scope TEXT NOT NULL, occurred TEXT NOT NULL, summary TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS facts(id TEXT PRIMARY KEY, statement TEXT NOT NULL, source TEXT NOT NULL);
-    """)
-    db.execute("INSERT OR IGNORE INTO facts VALUES (?,?,?)", ("FACT-01", "Order API timeouts can follow exhausted connection pools.", "Fictional WARNERCO runbook v1"))
-    db.commit()
+    try:
+        db.row_factory = sqlite3.Row
+        db.executescript("""
+        CREATE TABLE IF NOT EXISTS working(scope TEXT NOT NULL, topic TEXT NOT NULL, note TEXT NOT NULL, PRIMARY KEY(scope,topic));
+        CREATE TABLE IF NOT EXISTS episodic(id INTEGER PRIMARY KEY, scope TEXT NOT NULL, occurred TEXT NOT NULL, summary TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS facts(id TEXT PRIMARY KEY, statement TEXT NOT NULL, source TEXT NOT NULL);
+        """)
+        db.execute("INSERT OR IGNORE INTO facts VALUES (?,?,?)", ("FACT-01", "Order API timeouts can follow exhausted connection pools.", "Fictional WARNERCO runbook v1"))
+        db.commit()
+    except BaseException:
+        db.close()
+        raise
     return db
 
 
 def snapshot(path: Path, scope: str) -> dict:
     """Retrieve selected evidence explicitly; saving a record never inserts it into context."""
-    with connect(path) as db:
+    with closing(connect(path)) as db:
         working = [dict(row) for row in db.execute("SELECT topic,note FROM working WHERE scope=?", (scope,))]
         events = [dict(row) for row in db.execute("SELECT occurred,summary FROM episodic WHERE scope=? ORDER BY id DESC LIMIT 3", (scope,))]
         facts = [dict(row) for row in db.execute("SELECT * FROM facts WHERE statement LIKE ?", ("%connection%",))]
@@ -47,12 +52,18 @@ def snapshot(path: Path, scope: str) -> dict:
 
 
 def write_note(path: Path, scope: str, note: str) -> None:
-    """Persist a current observation and append its event atomically."""
+    """Atomically record a changed observation; retrying the current note is a no-op."""
     if not scope.strip() or not note.strip():
         raise ValueError("Scope and note must be nonempty")
-    with connect(path) as db:
-        db.execute("INSERT INTO working VALUES (?,?,?) ON CONFLICT(scope,topic) DO UPDATE SET note=excluded.note", (scope, "INC-1042", note))
-        db.execute("INSERT INTO episodic(scope,occurred,summary) VALUES (?,?,?)", (scope, datetime.now(timezone.utc).isoformat(), "Observed: " + note))
+    with closing(connect(path)) as db:
+        with db:
+            # Lock before reading so simultaneous retries cannot append the same transition twice.
+            db.execute("BEGIN IMMEDIATE")
+            current = db.execute("SELECT note FROM working WHERE scope=? AND topic=?", (scope, "INC-1042")).fetchone()
+            if current is not None and current["note"] == note:
+                return
+            db.execute("INSERT INTO working VALUES (?,?,?) ON CONFLICT(scope,topic) DO UPDATE SET note=excluded.note", (scope, "INC-1042", note))
+            db.execute("INSERT INTO episodic(scope,occurred,summary) VALUES (?,?,?)", (scope, datetime.now(timezone.utc).isoformat(), "Observed: " + note))
 
 
 def child(*args: str) -> str:
@@ -89,7 +100,7 @@ def main() -> None:
     if args.action == "demo": demo()
     elif args.action == "write":
         write_note(args.database, args.scope, args.note)
-        print("Committed note and event")
+        print("Saved current note; unchanged retries keep the existing event")
     elif args.action == "inspect": print(json.dumps(snapshot(args.database, args.scope), indent=2))
     elif args.action == "local-write":
         local = {"INC-1042": args.note}
@@ -101,5 +112,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     try: main()
+    except KeyboardInterrupt:
+        raise SystemExit(130)
     except (sqlite3.Error, OSError, ValueError, subprocess.SubprocessError) as exc:
         raise SystemExit(f"Memory demonstration failed: {exc}") from exc

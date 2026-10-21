@@ -52,6 +52,13 @@ jobs:
         run: |
           uv run --project ./python python ./memory/memory_demo.py demo
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Verify restart and retry safety
+        run: |
+          # Exercise occupied ports, concurrent runs, interrupted children, and memory retries.
+          uv run --locked --project ./python python ./azure-demo/test_restartability.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          uv run --locked --project ./python python ./scripts/Test-RetrySafety.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Verify the classroom HTTP server locally
         run: |
           # Cloud access is unnecessary for testing endpoint routing and backend authentication.

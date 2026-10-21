@@ -50,6 +50,10 @@ From the repository root:
 uv run --locked --project .\python python .\azure-demo\verify_demo.py --local
 ```
 
+Each local run reserves its own loopback port and shuts down only the server it
+started. You can repeat the command or run two copies together without clearing
+a port or stopping another application.
+
 ## Deploy
 
 Use `Deploy-Demo.ps1` with an existing subscription, tenant, resource group,
@@ -70,6 +74,11 @@ DPAPI in the ignored `.local` folder. Azure stores it as an ACA secret and an AP
 secret named value. The client subscription key and backend credential are different.
 All four container build inputs contribute to the image tag. `-SkipBuild` verifies
 that the corresponding registry image exists before changing the Container App.
+Ordinary reruns reuse the saved backend credential and the last successful image
+when its content hash still matches and the image exists. Use `-Rebuild` only when
+you intentionally want another build. Saved state is replaced atomically and
+pinned to the recorded Azure environment; a conflicting environment is rejected.
+Only one deployment from this checkout may run at a time.
 The script waits for ACA provisioning instead of assuming the initial ARM response
 already contains a hostname.
 

@@ -5,6 +5,7 @@ It deliberately checks both success and failure paths before the example is taug
 """
 from __future__ import annotations
 import json
+import time
 from pathlib import Path
 import subprocess
 import sys
@@ -28,29 +29,53 @@ def check(name: str, command: list[str]) -> dict:
     requests = [json.dumps({"jsonrpc":"2.0","id":i,"method":method,"params":{**params,"_meta":META}}) for i,(method,params) in enumerate(calls,1)]
     # Keep stdin open until each reply arrives; EOF may cancel in-flight SDK tasks.
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=ROOT, bufsize=1)
-    inbox: queue.Queue[str] = queue.Queue()
-    diagnostics: list[str] = []
+    inbox: queue.Queue[str | None] = queue.Queue()
     def read_stdout() -> None:
-        for line in process.stdout: inbox.put(line)
+        try:
+            for line in process.stdout: inbox.put(line)
+        finally:
+            inbox.put(None)
     def read_stderr() -> None:
-        for line in process.stderr: diagnostics.append(line)
-    threading.Thread(target=read_stdout,daemon=True).start()
-    threading.Thread(target=read_stderr,daemon=True).start()
+        # Drain diagnostics to avoid a full pipe without retaining arbitrary server output.
+        for _ in process.stderr: pass
+    readers = [threading.Thread(target=reader, daemon=True) for reader in (read_stdout, read_stderr)]
+    for reader in readers: reader.start()
     results = {}
     try:
         for expected_id,request in enumerate(requests,1):
             process.stdin.write(request+"\n")
             process.stdin.flush()
+            deadline = time.monotonic() + 20
             while expected_id not in results:
-                try: message = json.loads(inbox.get(timeout=20))
-                except queue.Empty as exc: raise RuntimeError(f"{name}: timed out waiting for reply {expected_id}. {''.join(diagnostics)[-800:]}") from exc
+                # Notifications must not extend a missing response's deadline indefinitely.
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise RuntimeError(f"{name}: timed out waiting for reply {expected_id}.")
+                try: line = inbox.get(timeout=remaining)
+                except queue.Empty as exc: raise RuntimeError(f"{name}: timed out waiting for reply {expected_id}.") from exc
+                if line is None:
+                    raise RuntimeError(f"{name}: server closed stdout before reply {expected_id}.")
+                message = json.loads(line)
                 if "id" in message: results[message["id"]] = message
     finally:
-        process.stdin.close()
-        try: process.wait(timeout=3)
+        # EOF gives the owned server a graceful exit; escalation never targets other processes.
+        try:
+            process.stdin.close()
+        except (BrokenPipeError, OSError):
+            pass
+        try:
+            process.wait(timeout=3)
         except subprocess.TimeoutExpired:
             process.terminate()
-            process.wait(timeout=3)
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=3)
+        finally:
+            for reader in readers: reader.join(timeout=3)
+            process.stdout.close()
+            process.stderr.close()
     if len(results) != len(calls): raise AssertionError(f"{name}: expected {len(calls)} results, got {results}")
     for i in range(1,6):
         if "error" in results[i]: raise AssertionError(f"{name} {calls[i-1][0]}: {results[i]}")
@@ -65,7 +90,8 @@ def check(name: str, command: list[str]) -> dict:
 
 def main() -> None:
     """Exercise shipped files, not test-only copies of the implementation."""
-    commands = [("Python", ["uv","run","--project",str(ROOT/"python"),"python",str(ROOT/"python/server.py")]),("TypeScript",["node",str(ROOT/"typescript/dist/server.js")])]
+    # Reuse the activated locked environment, avoiding a wrapper that can orphan its child.
+    commands = [("Python", [sys.executable,str(ROOT/"python/server.py")]),("TypeScript",["node",str(ROOT/"typescript/dist/server.js")])]
     reports = [check(name,command) for name,command in commands]
     path=ROOT/"protocol-evidence.json"
     path.write_text(json.dumps(reports,indent=2),encoding="utf-8")
@@ -74,5 +100,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     try: main()
+    except KeyboardInterrupt:
+        raise SystemExit(130)
     except (OSError, ValueError, RuntimeError, AssertionError, subprocess.SubprocessError) as exc:
         raise SystemExit(f"Protocol verification failed: {exc}") from exc

@@ -7,12 +7,14 @@ Only fictional incident data and sanitized results are written to the report.
 
 import argparse
 import asyncio
+from contextlib import ExitStack, contextmanager, redirect_stderr, redirect_stdout
 from datetime import datetime, timezone
 import json
+import multiprocessing
 import os
 from pathlib import Path
 import secrets
-import subprocess
+import socket
 import sys
 import time
 
@@ -20,6 +22,64 @@ import time
 import httpx2 as httpx
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
+
+
+def serve_local(listener: socket.socket, key: str) -> None:
+    """Run the real ASGI app on a socket already reserved by this test process."""
+    # Spawn keeps the per-run credential out of the parent environment and other runs.
+    os.environ["WARNERCO_BACKEND_KEY"] = key
+    with open(os.devnull, "w") as sink, redirect_stdout(sink), redirect_stderr(sink):
+        import uvicorn
+        from server import app
+        server = uvicorn.Server(uvicorn.Config(app, log_level="critical", access_log=False))
+        server.run(sockets=[listener])
+
+
+def stop_owned_process(process, timeout: float = 5) -> None:
+    """Reap only this invocation's child, with bounded escalation if it stalls."""
+    if process.is_alive():
+        process.terminate()
+    process.join(timeout)
+    if process.is_alive():
+        process.kill()
+        process.join(timeout)
+    if process.is_alive():
+        raise RuntimeError("Local verification child did not stop after termination and kill")
+    process.close()
+
+
+@contextmanager
+def local_backend():
+    """Reserve a loopback port without a probe/rebind race and verify child startup."""
+    key = secrets.token_hex(32)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        # Keep ownership of the OS-assigned socket throughout startup and verification.
+        # Passing it through spawn works on Windows and Linux without racing a rebind.
+        listener.bind(("127.0.0.1", 0))
+        listener.listen(128)
+        backend = f"http://127.0.0.1:{listener.getsockname()[1]}"
+        process = multiprocessing.get_context("spawn").Process(
+            target=serve_local, args=(listener, key), name="warnerco-local-verification"
+        )
+        process.start()
+        try:
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline:
+                if not process.is_alive():
+                    raise RuntimeError(f"Local verification child exited during startup ({process.exitcode})")
+                try:
+                    response = httpx.get(backend + "/health", timeout=0.5)
+                    if (response.status_code == 200 and response.json() ==
+                            {"status": "ok", "service": "warnerco-classroom"}):
+                        break
+                except (httpx.HTTPError, ValueError):
+                    pass
+                time.sleep(0.1)
+            else:
+                raise RuntimeError("Local verification child was not ready within 15 seconds")
+            yield backend, key
+        finally:
+            stop_owned_process(process)
 
 
 async def sdk_check(url: str, headers: dict):
@@ -81,25 +141,12 @@ def main():
     parser.add_argument("--local", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    process = None
+    local_session = ExitStack()
     started = time.monotonic()
     report = {"verifiedAt": datetime.now(timezone.utc).isoformat(), "passed": False}
     try:
         if args.local:
-            backend = "http://127.0.0.1:8765"
-            key = secrets.token_hex(32)
-            process = subprocess.Popen(
-                [sys.executable, str(Path(__file__).with_name("server.py"))],
-                env={**os.environ, "PORT": "8765", "WARNERCO_BACKEND_KEY": key},
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            )
-            for _ in range(50):
-                try:
-                    if httpx.get(backend + "/health", timeout=1).status_code == 200:
-                        break
-                except httpx.HTTPError:
-                    pass
-                time.sleep(0.1)
+            backend, key = local_session.enter_context(local_backend())
             headers = {"X-Warnerco-Backend-Key": key}
             report["direct_without_key"] = call(backend + "/catalog/mcp", "tools/list", {})
             assert report["direct_without_key"]["status"] == 401
@@ -189,9 +236,7 @@ def main():
                 print(f"PASS {name}: HTTP {result.get('status', 'SDK')} "
                       f"route={result.get('route') or result.get('protocol') or '-'}")
     finally:
-        if process:
-            process.terminate()
-            process.wait(timeout=10)
+        local_session.close()
         # Preserve command evidence without turning a machine measurement into a presenter rehearsal.
         report["verificationSeconds"] = round(time.monotonic() - started, 2)
         if args.output:
