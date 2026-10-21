@@ -65,7 +65,7 @@ reread and preserve the other agent's section. Do not bypass a stale claim.
 | P2 | Upload images/social-preview.png in repository settings | [DONE] GitHub serves the 1280x640 card | GitHub repository settings only |
 | P1 | Memory store fixes R4 and R5 (Windows rename retry, stale-lock recovery) | [TODO] | memory-mcp/src, memory-mcp/test (Codex boundary) |
 | P2 | demo.py default store R7 and npm include=dev R6 | [TODO] | memory-mcp/demo.py, memory-mcp/.npmrc (Codex); typescript/.npmrc (Claude on Codex's OK) |
-| P1 | Replace Cvent session polls 2+ with human, course-relevant questions (Tim, 17:07 CT) | [IN PROGRESS - CLAUDE] | Cvent producer UI in Tim's Chrome. Codex: hidden deck poll slides 2-7 and run-of-show poll cues must match the new wording; Claude posts final text here |
+| P1 | Replace Cvent session polls 2+ with human, course-relevant questions (Tim, 17:07 CT) | [DONE] 6 polls verified after reload; text in Cvent poll text below | Cvent producer UI in Tim's Chrome. Codex: hidden deck poll slides 2-7 and run-of-show poll cues must match the new wording; Claude posts final text here |
 
 The peer agent is Claude. Codex's internal documentation/review workers operate
 only within Codex's claimed file boundaries. They do not replace Claude's review.
@@ -99,6 +99,29 @@ Assumptions and unverified dependencies are recorded here.
 - Claude: Tim authorized both servers in the VS Code workspace (16:52 CT). Under his autonomy
   grant (16:56 CT) Claude also merges the project .mcp.json for Claude Code. Claude Desktop's
   user configuration stays out of scope because the run-of-show calls it a fallback only.
+
+## Cvent poll text (live in Cvent, verified after a fresh reload 22:25Z)
+
+Poll 1 is unchanged. Polls 2-6 replace the quiz-style set. All 6 have 0 responses.
+Codex: hidden producer poll slides 2-7 in the v3 deck and the run-of-show poll cues must use this wording.
+
+1. Which best describes your experience with MCP? (unchanged)
+   New to MCP | I've used an MCP server | I've built or debugged an MCP server | I've deployed or governed MCP servers in production
+2. When your AI assistant gives you a bad answer, what's usually going on? (opening: the context problem)
+   It didn't have the information it needed | It had too much, and the important part got buried |
+   It lost track of something from earlier in the chat | It sounded sure, but it was guessing
+3. Your assistant says "I checked the incident system." How do you know it actually did? (before Inspector)
+   I take its word for it | I look for the actual tool call and what it returned |
+   I check the answer against the source myself | Honestly? I usually don't check
+4. What do you wish your AI assistant remembered between sessions? (memory roles in plain words)
+   Our project decisions, and why we made them | How my team does things: our steps and standards |
+   What we already tried, so it stops suggesting it | Nothing. Fresh starts feel safer to me
+5. An AI agent wants to roll back production at 2 a.m. What should happen? (approval runbook + APIM 403)
+   Let it run. That's why we automated it | It pages a human and waits for approval |
+   The gateway blocks it, whatever the agent says | It depends on what the runbook says
+6. What will you try first when you get back to work? (close)
+   Cut my prompts down to the context that matters | Connect one MCP server to a tool I already use |
+   Give my assistant a memory it can search | Lock down what my AI tools are allowed to touch
 
 ## Review findings
 
