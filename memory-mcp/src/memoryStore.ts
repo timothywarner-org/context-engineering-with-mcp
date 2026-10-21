@@ -129,11 +129,21 @@ export async function loadStore(memoryPath: string): Promise<MemoryRecord[]> {
 
 /** Serialize stale-lock recovery so two contenders cannot unlink a new owner's lock. */
 function recoverDeadLock(lock: string): boolean {
+  // Avoid creating a recovery guard for ordinary contention; recheck under the guard below.
+  try {
+    const candidate = fs.statSync(lock);
+    if (Date.now() - candidate.mtimeMs < 5000 || candidate.size > 16) return false;
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code ?? '';
+    if (code === 'ENOENT') return true;
+    if (['EPERM','EACCES','EBUSY'].includes(code)) return false;
+    throw error;
+  }
   const guard = lock + '.recovery';
   let fd: number;
   try { fd = fs.openSync(guard, 'wx', 0o600); }
   catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'EEXIST') return false;
+    if (['EEXIST','EPERM','EACCES','EBUSY'].includes((error as NodeJS.ErrnoException).code ?? '')) return false;
     throw error;
   }
   try {
@@ -151,7 +161,9 @@ function recoverDeadLock(lock: string): boolean {
     fs.unlinkSync(lock);
     return true;
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return true;
+    const code = (error as NodeJS.ErrnoException).code ?? '';
+    if (code === 'ENOENT') return true;
+    if (['EPERM','EACCES','EBUSY'].includes(code)) return false;
     throw error;
   } finally {
     fs.closeSync(fd);
@@ -165,8 +177,10 @@ async function acquireLock(lock: string): Promise<void> {
     let fd: number;
     try { fd = fs.openSync(lock, 'wx', 0o600); }
     catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-      if (recoverDeadLock(lock)) continue;
+      const code = (error as NodeJS.ErrnoException).code ?? '';
+      // Windows may report sharing violations while the previous lock is deleting.
+      if (!['EEXIST','EPERM','EACCES','EBUSY'].includes(code)) throw error;
+      if (code === 'EEXIST' && recoverDeadLock(lock)) continue;
       if (Date.now() - started >= 2500) throw new Error('Memory store busy. Close writers and inspect a stale lock before retrying.');
       await new Promise(resolve => setTimeout(resolve, 50));
       continue;

@@ -1,3 +1,4 @@
+import fsSync from 'node:fs';
 import {fork,spawn} from 'node:child_process';
 import {once} from 'node:events';
 import test from 'node:test';
@@ -162,4 +163,25 @@ test('four writers retain every record while three independent readers loop',asy
   const records=await loadStore(file);
   assert.equal(records.length,101);
   assert.equal(new Set(records.map(r=>r.text)).size,101);
+});
+
+test('transient Windows lock-open sharing errors retry without losing the write',async t=>{
+  const {file}=await fixture(t);
+  const open=fsSync.openSync;
+  for(const code of ['EPERM','EACCES','EBUSY']) {
+    let attempts=0;
+    fsSync.openSync=function(target,...args) {
+      if(target===file+'.lock' && attempts++<2) {
+        const error=new Error('Injected Windows pending-delete condition');
+        error.code=code;
+        throw error;
+      }
+      return open.call(this,target,...args);
+    };
+    try {
+      await addMemory(file,{text:'INC-1042 retry after '+code});
+      assert.ok(attempts>=3);
+    } finally {fsSync.openSync=open;}
+  }
+  assert.equal((await loadStore(file)).length,3);
 });
