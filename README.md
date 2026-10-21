@@ -381,10 +381,6 @@ second setup route for this session.** Keep this repository as your working copy
 - Memory file error or busy lock: preserve the file; inspect the error and active writers. Never delete data or a lock while a writer may be using it.
 - SQLite notes missing: verify that exercise's separate database path and scope.
 
-## Instructor
-
-[Instructor entry point](instructor/README.md).
-
 ## About the author
 
 **Tim Warner** is a Microsoft MVP, a Microsoft Certified Trainer since 1997, and a

@@ -75,13 +75,14 @@ def check_privacy(paths: list[str]) -> None:
                 f"Private path is tracked: {name}")
         require(not re.search(r"(^|/)\.env(?:\.|$)|\.(pem|key)$", name, re.IGNORECASE),
                 f"Credential file is tracked: {name}")
-        require(not name.startswith("instructor/") or name == "instructor/README.md",
+        require(not name.startswith("instructor/"),
                 f"Instructor operations must remain local: {name}")
         require(not re.search(r"(?:Presenter|InstructorHome|ClassEnvironment)|submitted-files\.json", name),
                 f"Instructor operations must remain local: {name}")
         require(not re.search(r"(?:Context-Engineering-with-MCP|Participant-Worksheet|Resources-and-References)-v\d+\.(?:pptx|pdf)$", name),
                 f"Publisher submission is tracked: {name}")
-    for name in (".local/instructor/private.txt", "azure-demo/.local/deployment.json", "clients/generated/inspector.json"):
+    for name in (".local/instructor/private.txt", "azure-demo/.local/deployment.json",
+                 "clients/generated/inspector.json", "COORDINATION.md"):
         ignored = subprocess.run(["git", "-C", str(ROOT), "check-ignore", "--quiet", "--no-index", "--", name])
         require(ignored.returncode == 0, f"Private/generated path is not ignored: {name}")
 
@@ -100,11 +101,8 @@ def check_documents(paths: list[str]) -> tuple[int, int]:
                     f"Machine-specific or unsupported link in {source.relative_to(ROOT)}: {value}")
             target = (source.parent / unquote(url.path)).resolve() if url.path else source
             require(target.is_relative_to(ROOT), f"Link leaves repository: {value}")
-            if ".local" in target.relative_to(ROOT).parts:
-                # The single instructor signpost is intentionally useful only on its owner's PC.
-                require(source == ROOT / "instructor/README.md",
-                        f"Public navigation depends on private material: {value}")
-                continue
+            require(".local" not in target.relative_to(ROOT).parts,
+                    f"Public navigation depends on private material: {value}")
             require(target.exists(), f"Broken link in {source.relative_to(ROOT)}: {value}")
             # An ignored local file must not conceal a missing file in a learner clone.
             relative = target.relative_to(ROOT).as_posix()
