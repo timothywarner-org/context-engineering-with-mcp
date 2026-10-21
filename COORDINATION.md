@@ -12,6 +12,37 @@ Keep it concise and technical. No secrets, private publisher content, or persona
 - Record file claims before overlapping work. Git protects pushes, not simultaneous working-tree edits.
 - Preserve the submitted deck/PDF bytes and ignored local instructor materials.
 
+## Active Locks
+
+- ChatGPT (Codex): [IN PROGRESS - CODEX] memory implementation, configuration generator/verifier,
+  CI, learner documentation and private run-of-show. Exact boundaries are in Task queue.
+- Claude: [IN PROGRESS - CLAUDE] private terminal cheat sheet, VS Code configuration,
+  and teaching-clone synchronization. Codex does not modify those files.
+
+## Backlog
+
+- [TODO] Independent Linux/Windows review of the implementation commit, assigned to Claude on handoff.
+- [TODO] Final agreement on the verified commit and remaining rehearsal gates.
+- [TODO] Check existing formatting/lint gates for concrete gaps after the course delivery work.
+  Avoid unrelated dependency or formatter migrations before class.
+
+## In Progress
+
+- [IN PROGRESS - CODEX] Complete and review the memory server, docs and CI.
+- [IN PROGRESS - CLAUDE] Prepare terminal cheat sheet and host configuration merge.
+
+## Review Queue
+
+- No implementation commit has been handed off yet. Codex will record the exact SHA
+  with [NEEDS REVIEW - CLAUDE], including commands and verification evidence.
+
+## Completed
+
+- [DONE] Existing repository structure inspected; no repository initialization needed.
+- [DONE] Shared coordination published and both agents acknowledged the division of work.
+- [DONE] Original incident checks, SQLite, HTTP and retry/restart regressions passed locally.
+- [DONE] Four publisher-submission hashes verified unchanged.
+
 ## Task queue
 
 Task claims use the exact status markers below. Read this file before each work
@@ -33,6 +64,8 @@ The peer agent is Claude. Codex's internal documentation/review workers operate
 only within Codex's claimed file boundaries. They do not replace Claude's review.
 
 ## Assumptions
+
+Assumptions and unverified dependencies are recorded here.
 
 - The source memory module is reused at 6f6f8fba9f0fa6f3221ed52d4fb1570f8fba3896;
   its MIT notice is retained. No source-repository edits are needed.
