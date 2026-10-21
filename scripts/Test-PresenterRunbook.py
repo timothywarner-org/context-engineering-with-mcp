@@ -236,7 +236,8 @@ def check_syntax(document: Runbook) -> int:
     with TemporaryDirectory(prefix="context-runbook-check-") as directory:
         temp = Path(directory)
         for index, (_, text) in enumerate(commands, 1):
-            (temp / f"command-{index:02}.ps1").write_text(text, encoding="utf-8")
+            # Preserve CRLF from Windows checkouts; translating it again breaks backtick continuations.
+            (temp / f"command-{index:02}.ps1").write_text(text, encoding="utf-8", newline="")
         parser = temp / "parse.ps1"
         # One parser process keeps a 26-command check fast without executing the demo commands.
         parser.write_text(
@@ -273,7 +274,7 @@ if ($problems.Count) {
         )
         for index, script in enumerate(document.scripts, 1):
             script_path = temp / f"inline-{index}.js"
-            script_path.write_text(script, encoding="utf-8")
+            script_path.write_text(script, encoding="utf-8", newline="")
             result = subprocess.run(
                 [node, "--check", str(script_path)], capture_output=True, text=True, timeout=30,
             )

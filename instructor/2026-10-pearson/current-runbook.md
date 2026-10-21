@@ -307,3 +307,9 @@ Staged files passed the privacy check and a credential-pattern inspection. The e
 native screenshots were visually inspected before publication. Publisher assets and
 raw source records aren't included in the public change. The GitHub verification
 workflow now runs both course-home and presenter checks on Windows and Linux.
+
+**Windows CI correction:** the copied HTML validator wrote extracted CRLF commands
+with Windows newline translation, producing CRCRLF and breaking PowerShell backtick
+continuations. Temporary command and JavaScript files now preserve their input
+newlines. The validator passes against both the saved LF guide and an isolated CRLF
+copy on Windows. The Windows CI job retains this regression gate for fresh checkouts.
