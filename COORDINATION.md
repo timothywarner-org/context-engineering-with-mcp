@@ -15,7 +15,7 @@ Private operational details and delivery materials are retained locally.
 ## Active Locks
 
 - Codex: [None] Code and private review fixes are handed off.
-- Claude: [IN PROGRESS - CLAUDE] Private delivery integration; no overlap with Codex code.
+- Claude: [IN PROGRESS - CLAUDE] Teaching-clone sync and final-commit agreement; no overlap with Codex code.
 
 ## Backlog
 
@@ -23,13 +23,14 @@ Private operational details and delivery materials are retained locally.
 
 ## In Progress
 
-- [NEEDS REVIEW - CLAUDE] af2e9473464a33a529c75a7a08eabe0ecffa3f7b.
-- [IN PROGRESS - CLAUDE] Review fbbad29cb4335e521ccab3994deb58f142113c82.
+- [DONE] af2e9473464a33a529c75a7a08eabe0ecffa3f7b verified by Claude.
+- [DONE] Review fbbad29cb4335e521ccab3994deb58f142113c82.
 
 ## Review Queue
 
-- [NEEDS REVIEW - CLAUDE] af2e947: R11 fixed; R12 remains a documented fail-closed limitation for acceptance.
-- [IN PROGRESS - CLAUDE] fbbad29 docs review (README.md, TUTORIALS.md, docs/, memory/README.md).
+- [DONE] af2e947: R11 verified fixed; R12 accepted as a documented fail-closed limitation.
+- [DONE] fbbad29 docs review: every documented script argument exists, all 32 external links
+  return success, /branch and /fork statements match the current Claude Code command reference.
 - [DONE] R9/R10 verified by Codex after Claude's fixes.
 - [DONE] typescript/.npmrc reviewed; production-mode npm resolves include=dev.
 
@@ -37,12 +38,12 @@ Private operational details and delivery materials are retained locally.
 
 | Priority | Task | Status | Public file boundary |
 |---|---|---|---|
-| P1 | Memory server and resilience fixes | [NEEDS REVIEW - CLAUDE] af2e947 | memory-mcp/** |
+| P1 | Memory server and resilience fixes | [DONE] verified af2e947 | memory-mcp/** |
 | P1 | R9/R10: merge failure check and safe-block classification | [DONE] | ignored instructor scripts and cheat sheet |
-| P2 | Two-segment learner narrative | [IN PROGRESS - CLAUDE] review | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md |
-| P2 | Deterministic generated JSON (R8) | [NEEDS REVIEW - CLAUDE] 53700fb | clients/New-ClientConfigs.ps1, verify.yml |
+| P2 | Two-segment learner narrative | [DONE] reviewed | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md |
+| P2 | Deterministic generated JSON (R8) | [DONE] verified 53700fb | clients/New-ClientConfigs.ps1, verify.yml |
 | P2 | Compiler installation under production environment (R6) | [DONE] | typescript/.npmrc |
-| P1 | Final verified-commit agreement | [TODO] | Coordination only |
+| P1 | Final verified-commit agreement | [NEEDS REVIEW - CODEX] Claude verified adc9458 | Coordination only; Claude tags class-2026-10-22 after Codex confirms |
 
 ## Completed
 
@@ -85,7 +86,7 @@ Private operational details and delivery materials are retained locally.
 - R7 [DONE] Claude verified. Full demo now defaults to isolated temporary memory.
   Split phases require the same explicit absolute --memory-path. Request output
   remains available after the temporary store is removed.
-- R8 [NEEDS REVIEW - CLAUDE] 53700fb orders all maps. Five JSON files are byte-identical
+- R8 [DONE] Claude verified: four separate generator processes emit byte-identical files. 53700fb orders all maps. Five JSON files are byte-identical
   across separate PowerShell processes; generated launch verification passes.
 - R9 [DONE] Codex verified a failing generator now returns exit 1 and consumes no stale configuration. Before class: the peer-reviewed merge routine must check
   generator failure before reading prior generated files. Otherwise stale output
@@ -93,12 +94,15 @@ Private operational details and delivery materials are retained locally.
 - R10 [DONE] Codex verified automatic checks use preview and mutating execution is skipped. Before class: a verification block labeled safe invokes
   a mutating merge. Use its preview mode for automatic verification, or classify
   the mutating block as skipped. Claude owns the private implementation.
-- R11 [NEEDS REVIEW - CLAUDE] Fixed in af2e947; eight memory tests pass, including injected sharing errors. Before class (Claude finding on fbbad29). memory-mcp npm test fails
+- R11 [DONE] Claude verified on Windows: npm test 8/8 pass (1/8 before); attack run 100/100 writes,
+  0 reader errors in about 3,700 reads; dead-lock recovery and live-lock refusal unchanged. Fixed in af2e947; eight memory tests pass, including injected sharing errors. Before class (Claude finding on fbbad29). memory-mcp npm test fails
   intermittently on Windows: EPERM at acquireLock from loadStore via test/io-worker.mjs. openSync
   'wx' returns EPERM, not EEXIST, while a prior owner's lock unlink is pending deletion, and
   acquireLock retries only EEXIST. Hosted CI passed by luck. Attack script: 2 reader EPERMs in
   about 3,800 reads. Fix: treat EPERM, EACCES, and EBUSY like EEXIST in the bounded retry loop.
-- R12 [REJECTED - NEEDS FIX] Later (Claude finding). The .lock.recovery guard has no staleness
+- R12 [DONE] Accepted as a documented fail-closed limitation: the guard is now taken only for locks
+  at least 5 s old, a leftover guard refuses writes without damaging data, and the terminal cheat
+  sheet documents the manual removal. Later (Claude finding). The .lock.recovery guard has no staleness
   check. A guard left by a crash blocks every later recovery, so a dead lock needs a manual fix.
   Measured: leftover guard plus 60 s dead-PID lock, write refused after 2.5 s. Fix: unlink a
   guard older than 10 s and retry.
@@ -140,5 +144,5 @@ Private delivery integration remains Claude's boundary.
 
 ## Handoff
 
-[NEEDS REVIEW - CLAUDE] Review af2e947, R8 and the documented R12 boundary. Record the final verified commit
+[DONE] Claude reviewed af2e947, R8 and the documented R12 boundary. Record the final verified commit
 after review and hosted CI. Private operating details do not belong in this file.
