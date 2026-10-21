@@ -14,7 +14,7 @@ Private operational details and delivery materials are retained locally.
 
 ## Active Locks
 
-- Codex: [IN PROGRESS - CODEX] R11 lock-open retries in memory-mcp/src and test.
+- Codex: [None] Code and private review fixes are handed off.
 - Claude: [IN PROGRESS - CLAUDE] Private delivery integration; no overlap with Codex code.
 
 ## Backlog
@@ -23,22 +23,22 @@ Private operational details and delivery materials are retained locally.
 
 ## In Progress
 
-- [IN PROGRESS - CODEX] R11 pending-delete lock errors.
+- [NEEDS REVIEW - CLAUDE] af2e9473464a33a529c75a7a08eabe0ecffa3f7b.
 - [IN PROGRESS - CLAUDE] Review fbbad29cb4335e521ccab3994deb58f142113c82.
 
 ## Review Queue
 
-- [REJECTED - NEEDS FIX] fbbad29: R4/R5/R7 verified [DONE]; new R11 (Before class) and R12 (Later).
+- [NEEDS REVIEW - CLAUDE] af2e947: R11 fixed; R12 remains a documented fail-closed limitation for acceptance.
 - [IN PROGRESS - CLAUDE] fbbad29 docs review (README.md, TUTORIALS.md, docs/, memory/README.md).
-- [IN PROGRESS - CLAUDE] Codex findings R9 and R10 against Claude's private scripts, accepted.
+- [DONE] R9/R10 verified by Codex after Claude's fixes.
 - [DONE] typescript/.npmrc reviewed; production-mode npm resolves include=dev.
 
 ## Task queue
 
 | Priority | Task | Status | Public file boundary |
 |---|---|---|---|
-| P1 | Memory server and resilience fixes | [REJECTED - NEEDS FIX] R11, R12 | memory-mcp/** |
-| P1 | R9/R10: merge failure check and safe-block classification | [IN PROGRESS - CLAUDE] | ignored instructor scripts and cheat sheet |
+| P1 | Memory server and resilience fixes | [NEEDS REVIEW - CLAUDE] af2e947 | memory-mcp/** |
+| P1 | R9/R10: merge failure check and safe-block classification | [DONE] | ignored instructor scripts and cheat sheet |
 | P2 | Two-segment learner narrative | [IN PROGRESS - CLAUDE] review | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md |
 | P2 | Deterministic generated JSON (R8) | [NEEDS REVIEW - CLAUDE] 53700fb | clients/New-ClientConfigs.ps1, verify.yml |
 | P2 | Compiler installation under production environment (R6) | [DONE] | typescript/.npmrc |
@@ -87,13 +87,13 @@ Private operational details and delivery materials are retained locally.
   remains available after the temporary store is removed.
 - R8 [NEEDS REVIEW - CLAUDE] 53700fb orders all maps. Five JSON files are byte-identical
   across separate PowerShell processes; generated launch verification passes.
-- R9 [IN PROGRESS - CLAUDE] Accepted. Before class: the peer-reviewed merge routine must check
+- R9 [DONE] Codex verified a failing generator now returns exit 1 and consumes no stale configuration. Before class: the peer-reviewed merge routine must check
   generator failure before reading prior generated files. Otherwise stale output
   may be consumed after a failed generator. Claude owns the private implementation.
-- R10 [IN PROGRESS - CLAUDE] Accepted. Before class: a verification block labeled safe invokes
+- R10 [DONE] Codex verified automatic checks use preview and mutating execution is skipped. Before class: a verification block labeled safe invokes
   a mutating merge. Use its preview mode for automatic verification, or classify
   the mutating block as skipped. Claude owns the private implementation.
-- R11 [IN PROGRESS - CODEX] Before class (Claude finding on fbbad29). memory-mcp npm test fails
+- R11 [NEEDS REVIEW - CLAUDE] Fixed in af2e947; eight memory tests pass, including injected sharing errors. Before class (Claude finding on fbbad29). memory-mcp npm test fails
   intermittently on Windows: EPERM at acquireLock from loadStore via test/io-worker.mjs. openSync
   'wx' returns EPERM, not EEXIST, while a prior owner's lock unlink is pending deletion, and
   acquireLock retries only EEXIST. Hosted CI passed by luck. Attack script: 2 reader EPERMs in
@@ -105,9 +105,9 @@ Private operational details and delivery materials are retained locally.
 
 ## Codex
 
-Ready for review: fbbad29cb4335e521ccab3994deb58f142113c82.
+Ready for review: af2e9473464a33a529c75a7a08eabe0ecffa3f7b.
 
-Local verification: seven memory tests, three demo path tests, isolated SDK
+Local verification: eight memory tests, three demo path tests, isolated SDK
 lifecycle, generated config verification and a build after NODE_ENV=production
 installation pass. Public checks cover 10 documents, 69 links and 58 tracked paths.
 The complete learner route and private delivery guides are written.
@@ -116,13 +116,16 @@ No model answer or live-host rehearsal is claimed from the script's PASS.
 The full demo is the isolated preflight. Split write/retrieve examples now require
 an explicit absolute --memory-path; the revised documentation includes it.
 53700fb is pushed: R8 deterministic generation and its separate-process CI check.
-R11 is claimed now. R12's manual recovery boundary is deliberate: age alone cannot
+R11 is fixed. EPERM/EACCES/EBUSY use the bounded lock retry path; recovery guards
+are created only for stale candidates. Direct fault injection covers every sharing
+error. All eight tests pass, including the full reader/writer stress case. R12's manual recovery boundary is deliberate: age alone cannot
 prove a recovery owner is dead or prevent two stale-guard removers deleting a new
 guard. A simple ten-second unlink introduces a lock-stealing race. Keep fail-closed
 manual recovery for this rare crash boundary; requesting Claude's acceptance of
 that documented limitation instead of an unsafe age-only fix.
-R9 reproduced in an isolated fixture: failing generator still led to stale preview
-output and exit 0. Claude owns the fix. R6 compiler configuration review is DONE.
+R9 verified after Claude's fix using the same isolated failure fixture: exit 1,
+no stale preview output. R10 preview/skip classification is also verified.
+Private delivery guides are ready in Codex's isolated worktree for local integration. R6 compiler configuration review is DONE.
 Hosted fbbad29 verification passed on Windows and Linux (run 39685950975).
 
 ## Claude
@@ -134,5 +137,5 @@ Private delivery integration remains Claude's boundary.
 
 ## Handoff
 
-[NEEDS REVIEW - CLAUDE] Review fbbad29 and R9/R10. Record the final verified commit
+[NEEDS REVIEW - CLAUDE] Review af2e947, R8 and the documented R12 boundary. Record the final verified commit
 after review and hosted CI. Private operating details do not belong in this file.
