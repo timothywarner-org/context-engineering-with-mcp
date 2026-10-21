@@ -1,4 +1,16 @@
+<div align="center">
+  <img src="images/banner.png" alt="Context Engineering with MCP banner: an MCP hub connected to tools, resources, prompts, memory, and access, beside the course title and TechTrainerTim.com" width="800">
+</div>
+
 # Context Engineering with MCP
+
+[![Demos verified](https://img.shields.io/github/actions/workflow/status/timothywarner-org/context-engineering-with-mcp/verify.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=Demos%20verified)](https://github.com/timothywarner-org/context-engineering-with-mcp/actions/workflows/verify.yml)
+[![MCP specification 2026-07-28](https://img.shields.io/badge/MCP%20spec-2026--07--28-6366F1?style=for-the-badge&logo=modelcontextprotocol&logoColor=white)](https://modelcontextprotocol.io/specification/2026-07-28)
+[![MCP Python SDK 2.3.0](https://img.shields.io/badge/Python%20SDK-2.3.0-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://github.com/modelcontextprotocol/python-sdk)
+[![MCP TypeScript SDK 2.3.1](https://img.shields.io/badge/TypeScript%20SDK-2.3.1-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://github.com/modelcontextprotocol/typescript-sdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+[![Website: TechTrainerTim.com](https://img.shields.io/badge/Website-TechTrainerTim.com-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://techtrainertim.com)
+[![GitHub: timothywarner-org](https://img.shields.io/badge/GitHub-timothywarner--org-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/timothywarner-org)
 
 Tim Warner | Pearson Enterprise Live Training | October 22, 2026
 
@@ -52,6 +64,24 @@ durable memory, and access decisions. All business data is fictional.
 - [`azure-demo/`](azure-demo/README.md): the optional Azure Container Apps and API Management supplement, with tool-specific routes, denial, and throttling.
 - Slides, participant worksheet, and links PDF: in the Resources widget for your Pearson session.
 - `evidence/`: dated reference results; [GitHub Actions](https://github.com/timothywarner-org/context-engineering-with-mcp/actions/workflows/verify.yml) checks the current code on Windows and Linux.
+
+### How the pieces connect
+
+Every client below talks to the same `warnerco-incidents` server over stdio, so you
+can compare a scripted client, Inspector, and an AI host against identical data.
+The memory demonstration runs on its own, and the Azure supplement puts the same
+fictional incident behind a real gateway.
+
+```mermaid
+flowchart LR
+    PY["python/client.py<br/>no model or API key"] --> S
+    INS["MCP Inspector"] --> S
+    HOST["GitHub Copilot, Claude Code,<br/>or Claude Desktop"] --> S
+    S{{"warnerco-incidents<br/>MCP server over stdio"}}
+    S --> T["Tool<br/>get_incident"]
+    S --> R["Resource<br/>order-api runbook"]
+    S --> P["Prompt<br/>investigate_incident"]
+```
 
 ## Optional preparation
 
@@ -309,4 +339,22 @@ second setup route for this session.** Keep this repository as your working copy
 
 [Instructor entry point](instructor/README.md).
 
-License: [MIT](LICENSE). See [NOTICE.md](NOTICE.md) for source attribution.
+## About the author
+
+**Tim Warner** is a Microsoft MVP, a Microsoft Certified Trainer since 1997, and a
+Principal Staff Author at Pluralsight with more than 200 courses and over a million
+learners. He teaches live courses for Pearson and O'Reilly, and he builds and ships
+MCP servers. His teaching model comes from Richard Feynman: start from first
+principles, prove the idea with a working demo, and keep the examples close to real
+enterprise work.
+
+You'll find his video courses on [Pluralsight](https://www.pluralsight.com/authors/tim-warner),
+short tutorials on [YouTube](https://www.youtube.com/@TechTrainerTim), more course
+repositories on [GitHub](https://github.com/timothywarner-org), and everything else
+at [TechTrainerTim.com](https://techtrainertim.com). Connect with him on
+[LinkedIn](https://www.linkedin.com/in/timothywarner).
+
+## License
+
+The code is released under the [MIT License](LICENSE). See [NOTICE.md](NOTICE.md)
+for source attribution.
