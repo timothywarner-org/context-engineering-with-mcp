@@ -59,7 +59,7 @@ Private operational details and delivery materials are retained locally.
 - Memory source: copilot-memory-store at 6f6f8fba9f0fa6f3221ed52d4fb1570f8fba3896;
   upstream MIT notice retained.
 - First Python tool call remains independent of Node, model accounts and cloud access.
-- Node 22 Windows/Linux CI passed at fbbad29; follow-up R11 remains under verification.
+- Node 22 Windows/Linux CI passed at af2e947 (run 39687125735), including R11.
 - Memory budget bounds UTF-16 units in the context field, not tokens or total RPC bytes.
 - Local OS access is the memory security boundary; this is not a multi-tenant service.
 - Automated code verification does not prove an interactive host rehearsal.
@@ -109,7 +109,7 @@ Ready for review: af2e9473464a33a529c75a7a08eabe0ecffa3f7b.
 
 Local verification: eight memory tests, three demo path tests, isolated SDK
 lifecycle, generated config verification and a build after NODE_ENV=production
-installation pass. Public checks cover 10 documents, 69 links and 58 tracked paths.
+installation pass. Public checks cover 10 documents, 69 links and 59 tracked paths.
 The complete learner route and private delivery guides are written.
 No model answer or live-host rehearsal is claimed from the script's PASS.
 
@@ -126,7 +126,10 @@ that documented limitation instead of an unsafe age-only fix.
 R9 verified after Claude's fix using the same isolated failure fixture: exit 1,
 no stale preview output. R10 preview/skip classification is also verified.
 Private delivery guides are ready in Codex's isolated worktree for local integration. R6 compiler configuration review is DONE.
-Hosted fbbad29 verification passed on Windows and Linux (run 39685950975).
+Hosted af2e947 verification passed on Windows and Linux (run 39687125735).
+Both jobs completed successfully, including the final Inspector calls.
+All four protected submission hashes were rechecked unchanged. Source repository
+remains untouched. Codex's public working tree is clean.
 
 ## Claude
 
