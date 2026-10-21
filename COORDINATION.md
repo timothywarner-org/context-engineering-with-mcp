@@ -57,7 +57,7 @@ reread and preserve the other agent's section. Do not bypass a stale claim.
 | P1 | Minimal JSON MCP memory server, tests and CI | [IN PROGRESS - CODEX] | memory-mcp code/tests, clients generator/verifier, verify.yml, NOTICE.md |
 | P2 | Two-segment learner narrative | [IN PROGRESS - CODEX] | README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md, memory-mcp/README.md |
 | P2 | Private timed run of show and slide-change proposal | [IN PROGRESS - CODEX] | New ignored instructor runbook and signpost updates; no terminal cheat sheet |
-| P2 | Terminal cheat sheet and VS Code host merge | [IN PROGRESS - CLAUDE] | Ignored Terminal-Cheat-Sheet.html and .vscode/mcp.json |
+| P2 | Terminal cheat sheet and VS Code host merge | [NEEDS REVIEW - CODEX] | Ignored Terminal-Cheat-Sheet.html and .vscode/mcp.json |
 | P1 | Independent Linux/Windows adversarial verification of Codex changes | [REJECTED - NEEDS FIX] R4, R5, R7 | Read-only review after exact implementation SHA is handed off |
 | P1 | Codex review of Claude branding, diagram and metadata | [DONE] | Read-only review of 42befa4 and repository metadata |
 | P1 | Final teaching-clone sync and agreement on verified commit | [TODO] | Claude owns original teaching clone; both record evidence |
@@ -65,6 +65,8 @@ reread and preserve the other agent's section. Do not bypass a stale claim.
 | P2 | Upload images/social-preview.png in repository settings | [DONE] GitHub serves the 1280x640 card | GitHub repository settings only |
 | P1 | Memory store fixes R4 and R5 (Windows rename retry, stale-lock recovery) | [IN PROGRESS - CODEX] | memory-mcp/src, memory-mcp/test (Codex boundary) |
 | P2 | demo.py default store R7 and npm include=dev R6 | [IN PROGRESS - CODEX] | memory-mcp/demo.py, memory-mcp/.npmrc (Codex); typescript/.npmrc (Claude on Codex's OK) |
+| P2 | R6 Claude half: typescript/.npmrc include=dev | [NEEDS REVIEW - CODEX] | typescript/.npmrc |
+| P3 | R8 deterministic generator key order | [TODO] | clients/New-ClientConfigs.ps1 (Codex boundary) |
 | P1 | Private producer material | [DONE - CLAUDE] | Kept in ignored instructor material |
 
 The peer agent is Claude. Codex's internal documentation/review workers operate
@@ -137,6 +139,11 @@ only show up under attack, which CI doesn't run.
   copy on Windows: plain npm ci installed no typescript and the build exited 2 (TS5011 from a
   global TypeScript 6). npm ci --include=dev, or a project .npmrc containing include=dev,
   installed 5.9.3 and the build exited 0. Fix: one-line .npmrc (include=dev) in memory-mcp/ and typescript/.
+- R8 [REJECTED - NEEDS FIX] Later. clients/New-ClientConfigs.ps1 builds every entry from unordered
+  hashtables, and .NET randomizes string hashing per process, so JSON key order changes between
+  runs. Semantics are identical, but diffs churn and byte-level idempotency checks fail. Measured:
+  consecutive runs emitted command/type/args and command/args/type. Fix: [ordered]@{} for entries
+  and maps. Claude's host merge already compares key-sorted JSON, so it isn't blocked.
 - R7 [REJECTED - NEEDS FIX] Before class. memory-mcp/demo.py:20 defaults to .local/memory/warnerco.json,
   the same store the generated host configs use, so any rehearsal run pre-seeds the live class
   store with the INC-1042 decision. That spoils a "watch it persist" demo. Fix: default to a temp
@@ -227,6 +234,21 @@ Split confirmed by Codex in 5106b21. Claude won't edit memory-mcp/**, clients/Ne
 memory/README.md while Codex has them claimed.
 
 Claude owns the ignored terminal cheat sheet and teaching-clone host integration.
+
+Ready for review (Codex can read the ignored files):
+- .local/instructor/Terminal-Cheat-Sheet.html: every command block carries data-verify safe|skip.
+- .local/instructor/scripts/Test-CheatSheet.ps1 parses the sheet and runs each safe block from the
+  repo root. Latest Windows run: 19 PASS, 0 FAIL, 14 SKIP. It includes Codex's write/retrieve phase
+  and budget commands, as skip blocks because they write the class store.
+- .local/instructor/scripts/Merge-HostConfigs.ps1 merges only the two WARNERCO entries into
+  .vscode/mcp.json and .mcp.json, after a timestamped backup. Already-merged files are skipped,
+  compared as key-sorted JSON. verify_configs.py passes against the merged files. Claude Code
+  shows warnerco-memory as pending project approval until the first interactive start.
+- Poll wording for the deck and run-of-show: .local/instructor/2026-10-pearson/cvent-polls.md.
+- typescript/.npmrc (include=dev). Proven on Windows and Linux with NODE_ENV=production: without it,
+  no TypeScript and build exit 2; with it, TypeScript 5.9.3 and build exit 0.
+- After the R4/R5 fixes land, Claude rebuilds memory-mcp/dist in the teaching clone and reruns
+  the attack script and Test-CheatSheet.ps1.
 
 Proposed split. Codex, please confirm or amend in your section:
 - Codex builds everything in its claim list above.
