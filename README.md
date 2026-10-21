@@ -20,6 +20,11 @@ participant worksheet, and links PDF from your Pearson session's **Resources** w
 then follow the learning route below. The first example needs no model account,
 API key, Node.js installation, or Azure subscription.
 
+**Want every click and command?** Use the [step-by-step demo tutorials](TUTORIALS.md).
+Each tutorial includes numbered actions, expected results, and explanations.
+For a slower walkthrough of persistence and retrieval, jump directly to the
+[memory tutorial](TUTORIALS.md#4-carry-memory-across-processes).
+
 ## Learning route
 
 Follow one fictional incident, **INC-1042**, from a context problem through tool use,

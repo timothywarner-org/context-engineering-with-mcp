@@ -97,11 +97,13 @@ def main() -> None:
     parser.add_argument("--scope", default="class-demo")
     parser.add_argument("--note", default="Timeouts began after the deployment")
     args = parser.parse_args()
-    if args.action == "demo": demo()
+    if args.action == "demo":
+        demo()
     elif args.action == "write":
         write_note(args.database, args.scope, args.note)
         print("Saved current note; unchanged retries keep the existing event")
-    elif args.action == "inspect": print(json.dumps(snapshot(args.database, args.scope), indent=2))
+    elif args.action == "inspect":
+        print(json.dumps(snapshot(args.database, args.scope), indent=2))
     elif args.action == "local-write":
         local = {"INC-1042": args.note}
         print(local["INC-1042"])
@@ -111,7 +113,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    try: main()
+    try:
+        main()
     except KeyboardInterrupt:
         raise SystemExit(130)
     except (sqlite3.Error, OSError, ValueError, subprocess.SubprocessError) as exc:
