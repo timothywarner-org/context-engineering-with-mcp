@@ -6,6 +6,10 @@ Tim Warner | Pearson Enterprise Live Training | October 22, 2026
 Use this same checkout during the demonstration and for practice afterward. You
 don't need another course repository to complete the examples.
 
+**Teaching this session?** Open the [instructor starting point](instructor/README.md).
+The presenter walkthrough, runbook, and demo code now share this checkout.
+Publisher submissions and private production records stay in the ignored `.local/` folder.
+
 **Attending live?** Tim runs every demo on screen. Participate through predictions,
 polls, chat, and the worksheet; installing tools is optional. Get the slide PDF,
 participant worksheet, and links PDF from your Pearson session's **Resources** widget.

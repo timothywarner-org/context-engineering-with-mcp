@@ -15,3 +15,9 @@ clients/generated/
 
 # verify_protocol.py writes fresh evidence here on every run; the reference copy lives in evidence/.
 /protocol-evidence.json
+
+# Publisher submissions, correspondence, source snapshots, and rehearsal receipts
+# share the working folder without becoming public repository content.
+.local/
+*.pem
+*.key

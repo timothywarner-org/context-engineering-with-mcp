@@ -1,0 +1,79 @@
+{
+  "recordedDate": "2026-10-20",
+  "surface": "Claude Code CLI print mode",
+  "cliVersion": "2.1.304",
+  "model": "claude-opus-5-5",
+  "controlledVariable": "ENABLE_TOOL_SEARCH process environment true versus false; fresh conversations with identical prompt and MCP configuration",
+  "results": [
+    {
+      "enableToolSearch": "true",
+      "isError": false,
+      "permissionDenials": [],
+      "durationMs": 13509,
+      "sequence": [
+        {
+          "type": "tool_use",
+          "name": "ToolSearch",
+          "input": {
+            "query": "select:mcp__warnerco-incidents__get_incident",
+            "max_results": 1
+          }
+        },
+        {
+          "type": "tool_result",
+          "content": [
+            {
+              "type": "tool_reference",
+              "tool_name": "mcp__warnerco-incidents__get_incident"
+            }
+          ]
+        },
+        {
+          "type": "tool_use",
+          "name": "mcp__warnerco-incidents__get_incident",
+          "input": {
+            "incident_id": "INC-1042"
+          }
+        },
+        {
+          "type": "tool_result",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"id\": \"INC-1042\",\n  \"owner\": \"Priya Patel\",\n  \"service\": \"Order API\",\n  \"status\": \"Investigating\",\n  \"symptom\": \"Timeouts after a deployment\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "enableToolSearch": "false",
+      "isError": false,
+      "permissionDenials": [],
+      "durationMs": 4719,
+      "sequence": [
+        {
+          "type": "tool_use",
+          "name": "mcp__warnerco-incidents__get_incident",
+          "input": {
+            "incident_id": "INC-1042"
+          }
+        },
+        {
+          "type": "tool_result",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"id\": \"INC-1042\",\n  \"owner\": \"Priya Patel\",\n  \"service\": \"Order API\",\n  \"status\": \"Investigating\",\n  \"symptom\": \"Timeouts after a deployment\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "interpretation": "With true, ToolSearch returns the selected tool_reference before MCP execution. With false, Claude calls the already-loaded MCP tool directly. Both return the same incident. This validates selective discovery versus upfront exposure, not a cost or latency benchmark.",
+  "sources": [
+    "https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search"
+  ],
+  "publicationNote": "Account cost and tool-use identifiers omitted; observed sequence and tool results preserved."
+}
