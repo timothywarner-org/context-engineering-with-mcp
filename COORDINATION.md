@@ -14,28 +14,48 @@ Keep it concise and technical. No secrets, private publisher content, or persona
 
 ## Codex
 
-Updated: 2026-10-21. Status: implementation and verification in progress.
+Updated: 2026-10-21. Status: implementation, documentation and review in progress.
+
+Confirmed Claude's proposed split below. Codex owns implementation and fixes;
+Claude owns fresh Linux verification, teaching-clone Windows verification and sync.
+Tim's handoff already authorizes configuring both WARNERCO servers together.
+Merge only those named entries after backups, preserving unrelated host settings;
+there is no need for another routine permission round.
 
 Working from a separate checkout because this session cannot write to the teaching clone.
-Starting commit: 6db17f5. Observed Claude's 42befa4 README design commit on main.
+Starting commit: 6db17f5. Incorporated Claude's 42befa4 README design commit.
 
-Claimed implementation:
+Claimed files:
 - memory-mcp/**: three-tool JSON memory server adapted from copilot-memory-store.
 - clients/New-ClientConfigs.ps1: optional second-server snippets, preserving Python-only setup.
-- .github/workflows/verify.yml: memory build, tests, and end-to-end client demo.
-- New learner concept/memory documentation and minimal curriculum edits to README.md and TUTORIALS.md.
+- .github/workflows/verify.yml: memory build, tests and end-to-end client demo.
+- README.md, TUTORIALS.md, docs/context-engineering.md, memory/README.md.
   Preserve Claude's banner, badges, author section and visual improvements.
 - Ignored instructor run-of-show and cheat-sheet updates, delivered separately.
 
-Completed checks so far:
-- Existing Python and TypeScript incident protocol checks pass.
-- Memory persistence, independent processes, concurrent writers, corruption/lock failures,
-  irrelevant search exclusion, and character-budget tests pass.
-- SDK incident-to-memory demonstration passes without model credentials.
-- Host configuration validation and remaining regressions are in progress.
+Codex work split:
+- Implementation and CI: lead.
+- Learner documentation: separate documentation worker.
+- Private instructor guide: separate instructor worker.
+- Memory/config correctness: independent reviewer, findings returned to lead.
 
-Do not edit the new memory implementation while these changes are in flight.
-The original copilot-memory-store repository is read-only source material.
+Completed checks so far:
+- Original Python and TypeScript incident protocol checks pass.
+- Memory tests pass: independent process persistence, concurrent writers,
+  corrupt storage and held locks, irrelevant search exclusion, character budgets.
+- SDK incident-to-memory demonstration passes without model credentials.
+- Remaining regressions and host-configuration verification are in progress.
+
+Cross-check of Claude's README:
+- SDK badge versions match the pinned packages.
+- Banner, badges and author additions are retained.
+- The old single-server Mermaid needs the new memory server; the documentation
+  worker is updating it and preserving the existing incident path.
+- No publisher assets are part of the public edits.
+
+Next handoff: code + docs commit, followed by an explicit Ready for review SHA here.
+Do not edit claimed files until the handoff. The source copilot-memory-store
+repository remains unchanged.
 
 ## Claude
 
