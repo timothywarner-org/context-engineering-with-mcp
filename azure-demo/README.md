@@ -1,8 +1,9 @@
 # MCP tool routing through API Management to Container Apps
 
 **One real MCP server container, three SDK endpoint paths, one gateway URL.**
-The example keeps the course's fictional WARNERCO incident, INC-1042, and Priya Patel.
-It reuses existing Azure infrastructure and doesn't modify the Schematica application.
+Explore how a gateway controls access to MCP tools using fictional WARNERCO incident
+INC-1042 and its owner, Priya Patel. You can run the local checks without an Azure
+account. The optional deployment uses existing Azure infrastructure.
 
 ## Request path
 
@@ -42,7 +43,7 @@ execution. Nothing in this demonstration can roll back an actual service.
 
 ## Run locally
 
-From the learner repository root:
+From the repository root:
 
 ```powershell
 # The course lock already contains the SDK, HTTP client, ASGI router, and server.
@@ -83,44 +84,30 @@ Wait at least 60 seconds between full live runs so the previous throttle window
 doesn't affect the next demonstration. Results are saved without credentials in
 `azure-demo/.local/live-verification.json`.
 
-The complete command took **38.56 seconds initially and 8.43 seconds on a warm
-run** on October 20, 2026, including ARM credential retrieval. These are observed
-machine timings, not a guarantee or a measured five-minute presenter rehearsal.
-The report also records the Python verifier's own elapsed time.
+The live test retrieves credentials through Azure Resource Manager. To run it
+yourself, your signed-in account needs access to the selected deployment and its
+API subscription key. Local verification does not need those credentials.
 
-The test retrieves credentials through ARM and therefore runs as the presenter.
-Learners can watch without installing software, cloning this repository, or having
-an Azure account.
+## Read the results
 
-## What to show
-
-1. Open the policy beside the live output. Identify the `tools/call` branch.
-2. List the tools. Discovery includes the deliberately forbidden rollback fixture.
-3. Retrieve the incident and runbook. Compare `servedBy` and `X-Warnerco-Route`.
-4. Call rollback and inspect the gateway's explicit denial.
-5. Repeat the runbook call until throttled, then show incident lookup still works.
-6. Show that directly calling the container without its backend credential fails.
+1. Compare the catalog with the gateway policy in [`policy.xml`](policy.xml).
+   Discovering a tool does not mean you are authorized to execute it.
+2. Compare incident and runbook results. `servedBy` identifies the endpoint that
+   executed the tool; `X-Warnerco-Route` identifies the gateway's selected route.
+3. Inspect the rollback refusal. The 403 shows that the gateway rejected the call.
+4. Compare the throttled runbook request with the successful incident request.
+   A limit on one tool need not block another.
+5. Inspect the direct container request without its backend credential. Its 401
+   demonstrates that bypassing the gateway does not bypass authentication.
 
 The request body determines the tool name. An untrusted routing header can't select
 a backend. The throttle key uses APIM's authenticated subscription identity.
 Responses are forwarded without reading or buffering their bodies.
 
-### Suggested five-minute presenter walkthrough
-
-This is a pacing proposal, not a measured rehearsal. Use it within the existing
-governance discussion only after timing the surrounding host and skills material.
-
-| Elapsed | Screen and action | Teaching point |
-| --- | --- | --- |
-| 0:00-0:30 | Architecture above; one public gateway URL | MCP names the operation; the gateway decides how it may run. |
-| 0:30-1:00 | `policy.xml`, the `tools/call` branch | The actual JSON-RPC tool name selects the rule and backend. |
-| 1:00-2:00 | Run `Test-Demo.ps1`; inspect catalog and incident evidence | An official MCP client negotiates the protocol and calls a real remote server. |
-| 2:00-2:45 | Incident and runbook `servedBy` values | Two tools entered the same gateway URL and executed on different ACA endpoint paths. |
-| 2:45-4:00 | Rollback 403, runbook 429, incident success afterward | Authorization and throttling are separate decisions; throttling can be scoped to one tool. |
-| 4:00-5:00 | Direct ACA 401 and forged-header result | The backend requires a separate credential, and caller hints can't choose the route. |
-
-Keep the sanitized live report beside the policy. If connectivity fails during
-class, use the dated reference report and identify it as captured evidence.
+MCP gives the client a common way to discover and call these tools. The host still
+decides which returned information to put into the model's context. The gateway
+controls whether a request may run and where it goes; it does not decide which
+incident facts are relevant to the model's next answer.
 
 ## Boundaries and cost
 
@@ -134,14 +121,12 @@ class, use the dated reference report and identify it as captured evidence.
   before free allowances. Requests, logs, registry storage, and ACR builds are separate.
 - Existing APIM, registry, and environment charges continue. Reusing them avoids a
   new gateway base charge; it doesn't make the overall environment free.
-- Scale-to-zero can introduce cold-start latency. Warm the example before delivery.
+- Scale-to-zero can introduce cold-start latency. Allow for cold starts when comparing response times.
 - Raw checks request the 2025-06-18 compatibility protocol. The official SDK client
   also negotiated 2026-07-28, discovered all three tools, and executed the incident
-  tool through APIM. Desktop host UI integration remains a separate rehearsal.
+  tool through APIM. These protocol checks do not test a desktop host interface.
 - Tool routing uses an API-level policy that examines `tools/call`, not individual
   APIM tool-policy subresources. The server remains responsible for its tool schemas.
-- The original two-hour run of show and submitted artifacts are unchanged. Fitting this
-  additional example into the enterprise segment requires a timed presenter rehearsal.
 
 ## Sources
 
@@ -161,6 +146,7 @@ both execution routes, SDK protocol negotiation, rollback denial, throttle isola
 and rejection of a forged routing hint. The dated report is under `evidence/`;
 the most recent local run remains under `.local/`. The published report includes
 the measured command timings and the final warm run's actual response bodies.
+Those timings describe one deployment, not a performance guarantee.
 
 ### Corrections established by live testing
 
