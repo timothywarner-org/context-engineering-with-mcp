@@ -1,0 +1,22 @@
+{
+  "submittedDate": "2026-10-07",
+  "purpose": "Unmodified Pearson submission; local files only",
+  "files": [
+    {
+      "path": ".local/pearson/2026-10-22/handoff-v2/Context-Engineering-with-MCP-v2.pptx",
+      "sha256": "faac2883501bdbfc8f33ae467ab15480ffa3538b463a858c0b5216dd9b7c3bb8"
+    },
+    {
+      "path": ".local/pearson/2026-10-22/handoff-v2/Context-Engineering-with-MCP-v2.pdf",
+      "sha256": "dae2f31acf2766857e72107abaf062323cb7b126381c39b6c62cba8509ba663f"
+    },
+    {
+      "path": ".local/pearson/2026-10-22/handoff-v2/Participant-Worksheet-v2.pdf",
+      "sha256": "f007440fb5eef75a4abf089384bc7156852f60a701ebc0201e68325fc8ccbee8"
+    },
+    {
+      "path": ".local/pearson/2026-10-22/handoff-v2/Resources-and-References-v3.pdf",
+      "sha256": "0eeddc99f8c727973a102cd70fc47b1880bf2e0ca1e62b02e9b752d926d50925"
+    }
+  ]
+}
