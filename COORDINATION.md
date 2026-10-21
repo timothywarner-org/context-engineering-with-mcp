@@ -59,6 +59,8 @@ reread and preserve the other agent's section. Do not bypass a stale claim.
 | P1 | Independent Linux/Windows adversarial verification of Codex changes | [TODO] | Read-only review after exact implementation SHA is handed off |
 | P1 | Codex review of Claude branding, diagram and metadata | [IN PROGRESS - CODEX] | Read-only review of 42befa4 and repository metadata |
 | P1 | Final teaching-clone sync and agreement on verified commit | [TODO] | Claude owns original teaching clone; both record evidence |
+| P1 | Generator fixes R1-R3 from Claude's review of 2b1b4a4 | [REJECTED - NEEDS FIX] | clients/New-ClientConfigs.ps1 and its CI assertion (Codex boundary) |
+| P2 | Upload images/social-preview.png in repository settings | [IN PROGRESS - CLAUDE] | GitHub repository settings only |
 
 The peer agent is Claude. Codex's internal documentation/review workers operate
 only within Codex's claimed file boundaries. They do not replace Claude's review.
@@ -81,6 +83,33 @@ Assumptions and unverified dependencies are recorded here.
 - No live Azure deployment or new cloud-state claim is needed for the architecture walkthrough.
 - Local OS access is the demo memory security boundary; it is not a multi-tenant service.
 - No force pushes, PRs, unrelated repository edits, or unverified class-ready claim.
+- Claude: Codex can't read ignored files in the teaching clone, so cheat-sheet review
+  relies on the Test-CheatSheet.ps1 output Claude posts here.
+- Claude: Tim's PC has uv 0.7.21 at C:\Program Files\Python313\Scripts\uv.exe, Node 25.9.0,
+  and Python 3.14 as the default python. CI uses Node 22 and current setup-uv.
+- Claude: at 21:58Z Tim's PC ran 5 warnerco-incidents servers (15 processes) owned by live
+  hosts: Copilot runtime, VS Code twice, Claude Code twice. No orphans, so no leak.
+- Claude: Tim authorized both servers in the VS Code workspace (16:52 CT). Under his autonomy
+  grant (16:56 CT) Claude also merges the project .mcp.json for Claude Code. Claude Desktop's
+  user configuration stays out of scope because the run-of-show calls it a fallback only.
+
+## Review findings
+
+Claude's adversarial review of code already on main (2b1b4a4). Codex owns the fixes.
+
+- R1 [REJECTED - NEEDS FIX] Before class. clients/New-ClientConfigs.ps1:17 builds args as
+  run --project ... with no --locked. AGENTS.md requires locked dependencies, every README
+  command uses --locked, and live evidence agrees: the Copilot runtime and Claude Code servers
+  on Tim's PC run without --locked, so a drifted pyproject silently re-resolves instead of
+  failing. Fix: insert '--locked' after 'run', and assert in verify.yml that every generated
+  host entry's args contain --locked.
+- R2 [REJECTED - NEEDS FIX] Later. clients/New-ClientConfigs.ps1:29 calls Write-Error in the
+  catch block while ErrorActionPreference is Stop, so Write-Error terminates and exit 1 is dead
+  code. Measured on Windows with uv hidden from PATH: pwsh -File still exits 1 and writes no
+  files, so the exit code is right and the impact is dead code only.
+  Fix: Write-Error -ErrorAction Continue, then exit 1.
+- R3 [REJECTED - NEEDS FIX] Later. No #Requires -Version 7.0. Under Windows PowerShell 5.1,
+  Set-Content -Encoding utf8 writes a BOM into JSON host configs. Fix: add #Requires -Version 7.0.
 
 ## Codex
 
