@@ -103,6 +103,15 @@ jobs:
           if (-not $?) { throw "Two-server configuration generation failed" }
           uv run --locked --project ./python python ./clients/verify_configs.py
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          # A separate process has an independent .NET hash seed.
+          pwsh -NoProfile -File ./clients/New-ClientConfigs.ps1 -IncludeMemory -OutputDirectory clients/generated/order-check
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          foreach ($file in (Get-ChildItem clients/generated -Filter '*.json' -File)) {
+            $second = Join-Path 'clients/generated/order-check' $file.Name
+            if ((Get-FileHash $file.FullName).Hash -ne (Get-FileHash $second).Hash) {
+              throw "Generated JSON changes between processes: $($file.Name)"
+            }
+          }
           $inspector = Get-Content clients/generated/inspector.json -Raw | ConvertFrom-Json
           if ($inspector.mcpServers.'warnerco-incidents'.protocolEra -ne 'modern') {
             throw 'Inspector must select the modern protocol without a CLI override.'
