@@ -189,6 +189,35 @@ assurance that it connected isn't evidence of a successful tool call. Host
 interfaces and account permissions differ; use your host's documentation for its
 configuration location and access controls.
 
+### Use resources and prompts in VS Code Copilot
+
+Use Copilot Chat as the model-driven client, with the course server connected.
+Exercise all three capabilities, not only the incident tool:
+
+1. Request `get_incident` for `INC-1042`. Expand the tool call and inspect its actual
+   input and returned owner, status, and symptom.
+2. Run **MCP: Browse Resources** from the Command Palette. Select the course server's
+   `warnerco://runbooks/order-api` resource and inspect the procedure.
+3. In Chat, use **Add Context > MCP Resources** to attach that resource. Confirm it
+   appears as attached context, then ask: "Using the attached runbook and the incident
+   tool result, separate observed facts from hypotheses and recommend the next check.
+   What requires approval? Do not change files or perform a rollback."
+4. Type `/` in Chat and select the server's `investigate_incident` prompt from the
+   available completions. Use `INC-1042` for its incident argument and inspect the
+   prepared request. A prompt supplies instructions; it is not a stored result.
+
+**Context connection:** the tool returns incident facts; the resource contributes
+selected reference material; the prompt frames the task. Attaching a resource does
+not create durable memory or authorize an action. If a capability is missing from
+your session, inspect it in Inspector while resolving the host configuration.
+
+VS Code configuration depends on the selected agent harness. The supplied `servers`
+snippet is the VS Code format; portable Copilot configuration uses `mcpServers`.
+Keep an existing working connection. For a new setup, follow the current
+[configuration destinations and resource controls](https://code.visualstudio.com/docs/agent-customization/mcp-servers)
+and [resource and prompt behavior](https://code.visualstudio.com/api/extension-guides/ai/mcp).
+Picker labels and prompt prefixes can vary by version; select the discovered entry.
+
 ## Understand the memory demonstration
 
 From the same repository root:
