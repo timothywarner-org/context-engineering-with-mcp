@@ -115,13 +115,36 @@ def check_documents(paths: list[str]) -> tuple[int, int]:
     return len(documents), links_checked
 
 
+def check_compact_markdown_tables() -> int:
+    """Enforce MD060 compact separator spacing in the memory server README."""
+    relative_path = Path("memory-mcp/README.md")
+    lines = (ROOT / relative_path).read_text(encoding="utf-8-sig").splitlines()
+    separator_count = 0
+    for line_number, line in enumerate(lines, start=1):
+        stripped = line.strip()
+        if not (stripped.startswith("|") and stripped.endswith("|")):
+            continue
+        cells = stripped[1:-1].split("|")
+        if not cells or not all(re.fullmatch(r"\s*:?-+:?\s*", cell) for cell in cells):
+            continue
+        separator_count += 1
+        require(
+            all(cell.startswith(" ") and cell.endswith(" ") for cell in cells),
+            f"MD060 compact table spacing violation in {relative_path}:{line_number}",
+        )
+    require(separator_count > 0, f"No Markdown table separators found in {relative_path}")
+    return separator_count
+
+
 def main() -> int:
     """Keep public checks independent from the instructor's local environment."""
     try:
         paths = tracked_paths()
         check_privacy(paths)
         documents, links = check_documents(paths)
+        table_separators = check_compact_markdown_tables()
         print(f"PASS: {documents} public documents and {links} local links/anchors checked.")
+        print(f"PASS: {table_separators} compact Markdown table separators checked.")
         print(f"PASS: {len(paths)} tracked paths respect the public/private boundary.")
         return 0
     except (OSError, ValueError, subprocess.CalledProcessError) as error:

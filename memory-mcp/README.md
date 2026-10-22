@@ -3,11 +3,11 @@
 This second local stdio server exposes persistent memory through three tools.
 The original incident server remains separate. All business data is fictional.
 
-| Tool | Inputs | Result |
-|---|---|---|
-| `memory_write` | `text`, optional `tags` | A durable record with ID and timestamps. Identical text and normalized tags reuse the existing record. |
-| `memory_search` | `query`, optional `limit` (1-25, default 10) | Deterministically ranked hits; unmatched queries return `hits: []`. |
-| `memory_compress` | `query`, optional `limit`, `budget` (200-8000, default 800) | Bounded `context`, `used` length, IDs and truncation flags for records actually included. |
+| Tool              | Inputs                                                      | Result                                                                                                 |
+| ----------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `memory_write`    | `text`, optional `tags`                                     | A durable record with ID and timestamps. Identical text and normalized tags reuse the existing record. |
+| `memory_search`   | `query`, optional `limit` (1-25, default 10)                | Deterministically ranked hits; unmatched queries return `hits: []`.                                    |
+| `memory_compress` | `query`, optional `limit`, `budget` (200-8000, default 800) | Bounded `context`, `used` length, IDs and truncation flags for records actually included.              |
 
 ## Prepare and run
 
@@ -63,13 +63,13 @@ See the [numbered lifecycle tutorial](../TUTORIALS.md#4-carry-memory-across-proc
 
 The generator writes snippets without replacing installed host settings.
 
-| Host | Generated snippet | Placement |
-|---|---|---|
-| VS Code Local harness | `clients/generated/vscode-mcp.json` | Merge both WARNERCO entries under `servers` in `.vscode/mcp.json`. |
-| Portable Copilot | `clients/generated/copilot-mcp.json` | Supported destination for the selected harness, using `mcpServers`. |
-| Claude Code | `clients/generated/claude-code.mcp.json` | Project `.mcp.json` under `mcpServers`. |
-| Claude Desktop | `clients/generated/claude-desktop.json` | Existing Desktop MCP configuration under `mcpServers`. |
-| Inspector | `clients/generated/inspector.json` | Select either named server; `protocolEra` belongs only in Inspector. |
+| Host                  | Generated snippet                        | Placement                                                            |
+| --------------------- | ---------------------------------------- | -------------------------------------------------------------------- |
+| VS Code Local harness | `clients/generated/vscode-mcp.json`      | Merge both WARNERCO entries under `servers` in `.vscode/mcp.json`.   |
+| Portable Copilot      | `clients/generated/copilot-mcp.json`     | Supported destination for the selected harness, using `mcpServers`.  |
+| Claude Code           | `clients/generated/claude-code.mcp.json` | Project `.mcp.json` under `mcpServers`.                              |
+| Claude Desktop        | `clients/generated/claude-desktop.json`  | Existing Desktop MCP configuration under `mcpServers`.               |
+| Inspector             | `clients/generated/inspector.json`       | Select either named server; `protocolEra` belongs only in Inspector. |
 
 Preserve unrelated settings. In VS Code, use **MCP: List Servers** to start or
 restart named connections; in Claude Code, use `/mcp`. Review trust and write
@@ -145,15 +145,15 @@ must define permissions, identity binding, retention, backup, auditing and recov
 
 ## What compression means
 
-| Operation | Behavior here |
-|---|---|
-| Ranking | English tokens longer than two characters, excluding stop words. Text occurrences score 5, matching tags 8, and extracted keywords 6. |
-| Selection | Highest score first; ties use record ID. No recency bonus admits unrelated records. |
-| Compaction | Collapse whitespace and format selected text. |
-| Truncation | Cut the last included record and label it `[truncated]`. Qualifications can be lost. |
-| Summarization | Not performed. No model rewrites meaning or reconciles conflicting decisions. |
-| Budget | UTF-16 units in `context` including heading, IDs and separators. Emoji may use two units. |
-| Tokens | Tokenizer dependent; not measured or guaranteed by this character limit. |
+| Operation     | Behavior here                                                                                                                         |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Ranking       | English tokens longer than two characters, excluding stop words. Text occurrences score 5, matching tags 8, and extracted keywords 6. |
+| Selection     | Highest score first; ties use record ID. No recency bonus admits unrelated records.                                                   |
+| Compaction    | Collapse whitespace and format selected text.                                                                                         |
+| Truncation    | Cut the last included record and label it `[truncated]`. Qualifications can be lost.                                                  |
+| Summarization | Not performed. No model rewrites meaning or reconciles conflicting decisions.                                                         |
+| Budget        | UTF-16 units in `context` including heading, IDs and separators. Emoji may use two units.                                             |
+| Tokens        | Tokenizer dependent; not measured or guaranteed by this character limit.                                                              |
 
 `used <= budget` covers only `context`, not metadata, the MCP envelope, other
 tool results or the host's complete prompt. `selected` contains IDs actually
